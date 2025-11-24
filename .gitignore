@@ -1,0 +1,55 @@
+# 의존성
+node_modules/
+.pnpm-store/
+.pnp/
+.pnp.*
+
+# 빌드 결과물
+dist/
+build/
+coverage/
+
+# 로그
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# 환경변수 파일
+.env
+.env.*
+!.env.example
+
+# VSCode
+.vscode/
+
+# JetBrains (WebStorm, IntelliJ 등)
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+
+# Python / FastAPI
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# 가상환경
+.venv/
+venv/
+
+# 테스트 / 타입체커 캐시
+.pytest_cache/
+.mypy_cache/
+
+# 커버리지
+.coverage
+htmlcov/
+
+# 기타
+*.sqlite3
