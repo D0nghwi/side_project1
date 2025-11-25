@@ -31,7 +31,6 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-
 # Python / FastAPI
 
 __pycache__/
@@ -50,6 +49,23 @@ venv/
 # 커버리지
 .coverage
 htmlcov/
+
+# Tailwind / PostCSS / Webpack cache
+.tailwind/
+.postcssrc
+.cache/
+webpack.cache/
+
+# Backend logs
+uvicorn.log
+
+# Additional DB files
+*.db
+*.sqlite
+
+# Vim temporary
+*.swp
+*.swo
 
 # 기타
 *.sqlite3
