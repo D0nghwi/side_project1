@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 //파일 임포트시 {} 주의 (디폴트 익스포트된 것들은 {} 없이 임포트)
 import MainLayout from "./layouts/MainLayout";
 import NotesListPage from "./pages/NotesListPage";
+import NoteCreatePage from "./pages/NoteCreatePage";
 import NoteDetailPage from "./pages/NoteDetailPage";
+import NoteEditPage from "./pages/NoteEditPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
@@ -20,7 +22,9 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/notes" replace />} />
             <Route path="/notes" element={<NotesListPage />} />
+            <Route path="/notes/new" element={<NoteCreatePage />} />
             <Route path="/notes/:id" element={<NoteDetailPage />} />
+            <Route path="/notes/:id/edit" element={<NoteEditPage />} />
             <Route path="/flashcards" element={<FlashcardsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
