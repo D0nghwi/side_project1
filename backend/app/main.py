@@ -2,11 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.routers import notes
+from app.routers import notes, chat
 
 app = FastAPI()
 
-# 앱 시작 시 테이블 생성 (이미 있으면 무시됨)
+# 앱 시작 시 테이블 생성
 Base.metadata.create_all(bind=engine)
 
 # 프론트엔드 도메인
@@ -32,3 +32,8 @@ app.include_router(
     prefix="/notes",
     tags=["notes"],
 )
+app.include_router(
+    chat.router,
+    prefix="/chat",
+    tags=["chat"],
+) 

@@ -108,7 +108,7 @@ def update_note(
 
 
 
-# 5) 노트 삭제
+# 노트 삭제
 @router.delete("/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_note(note_id: int, db: Session = Depends(get_db)):
     note = db.query(NoteModel).filter(NoteModel.id == note_id).first()
