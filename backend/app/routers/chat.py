@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -14,15 +14,21 @@ class ChatMessage(BaseModel):
     role: str  # "user" 또는 "assistant"
     content: str
 
+class NoteContext(BaseModel):
+    id: Optional[int] = None
+    title: Optional[str] = None
+    content: Optional[str] = None
+
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
+    note: Optional[NoteContext] = None
 
 class ChatResponse(BaseModel):
     output: str
 
 
 # 시스템 프롬프트 정의
-SYSTEM_PROMPT = (
+BASE_SYSTEM_PROMPT = (
     '- 너는 "StudyI"라는 이름의 AI 학습 어시스턴트이다.\n'
     "- 사용자가 정리한 노트, 플래시카드, 코드, 자료 등을 바탕으로 개념을 이해하고 기억하도록 도와주는 것이 주요 역할이다.\n"
     "- 사용자의 수준은 초급~중급 개발자/학습자로 가정하고, 모르는 것을 전제로 차근차근 설명한다.\n"
@@ -39,18 +45,34 @@ SYSTEM_PROMPT = (
 )
 
 
-# HyperCLOVAX-SEED를 이용한 간단한 챗봇 엔드포인트
+# HyperCLOVAX-SEED를 이용한 챗봇 엔드포인트
 @router.post("/", response_model=ChatResponse)
 def chat(request: ChatRequest):
-    
     # user_messages 리스트 구성
     user_messages: List[Dict[str, str]] = [
         {"role": msg.role, "content": msg.content}
         for msg in request.messages
     ]
 
+    # 노트 내용이 있으면 시스템 프롬프트에 추가
+    system_prompt = BASE_SYSTEM_PROMPT
+    
+    if request.note and request.note.content:
+        note_ctx = (
+            "\n[현재 사용자가 보고 있는 노트 정보]\n"
+            f"- 노트 ID: {request.note.id}\n"
+            f"- 제목: {request.note.title or ''}\n"
+            "- 내용:\n"
+            f"{request.note.content}\n\n"
+            "[추가 지시]\n"
+            "위 노트 내용을 참고하여 답변을 작성해줘."
+            "노트 내용이 부족하거나 관련 없는 질문일 경우, 사용자의 개발과 학습의 관련되어 답변해줘"
+            "도움이 될 만한 방향으로 설명해줘"
+        )       
+        system_prompt = BASE_SYSTEM_PROMPT + note_ctx
+    
     # HyperCLOVAX 템플릿 구조로 메시지 구성
-    chat_messages = build_chat_messages(SYSTEM_PROMPT, user_messages)
+    chat_messages = build_chat_messages(system_prompt, user_messages)
 
     # 모델 호출
     raw_output = generate_chat_response(chat_messages)

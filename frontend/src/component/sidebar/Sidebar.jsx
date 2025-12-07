@@ -28,13 +28,6 @@ function Sidebar() {
           플래시카드
         </NavLink>
       </nav>
-
-      <div className="mt-6">
-        <h2 className="text-xs font-semibold text-gray-500 mb-2">프로젝트</h2>
-        <p className="text-xs text-gray-400">
-          AI 챗봇 레이아웃
-        </p>
-      </div>
     </aside>
   );
 }
