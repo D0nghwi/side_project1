@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 
+import ChatPanel from "../../component/panel/ChatPanel";
+
 function NoteDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -61,7 +63,6 @@ function NoteDetailPage() {
     <div className="flex gap-4 h-full">
       {/* 노트 내용 */}
       <section className="flex-1 bg-white rounded-lg shadow p-4">
-        {/* 제목 + 버튼 */}
         <div className="flex items-center justify-between mb-3">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
@@ -131,17 +132,13 @@ function NoteDetailPage() {
         </div>
       </section>
 
-      {/* 챗봇 나중에 연결 예정 */}
-      <aside className="w-80 bg-white rounded-lg shadow p-4 flex flex-col">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">
-          AI 챗봇 (준비중)
-        </h2>
-        <p className="text-xs text-gray-500 mb-3">
-          챗봇 UI가 여기에 들어올 예정
-        </p>
-        <div className="flex-1 border border-dashed border-gray-300 rounded-md p-3 text-xs text-gray-400">
-          메시지 리스트 및 입력창 컴포넌트 자리
-        </div>
+      {/* 사이드 챗 패널 */}
+       <aside className="w-80">
+        <ChatPanel
+          noteId={note?.id || id}
+          noteTitle={note?.title}
+          noteContent={note?.content}
+        />
       </aside>
     </div>
   );
