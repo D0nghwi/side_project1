@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { pages, card, text, pill, btn } from "../../asset/style/uiClasses";
 
 // 더미 데이터 - 나중에 백엔드에서 불러오는 데이터로 대체
 const initialFlashcards = [
@@ -79,57 +80,44 @@ function FlashcardsPage() {
     console.log("셔플 로직 구현 중.", shuffled);
   };
 
+
   return (
-    <div className="flex h-full gap-4 p-4">
+    <div className={pages.flash.page}>
       {/* 왼쪽: 학습 영역 */}
-      <section className="flex-1 bg-white rounded-lg shadow p-4 flex flex-col">
+      <section className={`${card.base} ${pages.flash.mainSection}`}>
         {/* 상단 헤더 */}
-        <div className="flex items-center justify-between mb-4">
+        <div className={pages.flash.headerRow}>
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              플래시카드 학습
-            </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              이후 자동으로 플래시카드를 생성하는 기능.
-            </p>
+            <h1 className={text.titleLg}>플래시카드 학습</h1>
+            <p className={text.descXs}>이후 자동으로 플래시카드를 생성하는 기능.</p>
           </div>
-          <div className="flex items-center gap-3 text-xs text-gray-600">
+
+          <div className={pages.flash.headerMeta}>
             <div>
               진행 상황:{" "}
               <span className="font-semibold">
                 {currentIndex + 1} / {total}
               </span>
             </div>
+
             <div className="flex items-center gap-2">
-              <span className="px-2 py-1 rounded-full bg-green-100 text-green-700">
-                맞음: {knownCount}
-              </span>
-              <span className="px-2 py-1 rounded-full bg-red-100 text-red-700">
-                틀림: {unknownCount}
-              </span>
+              <span className={pill.known}>맞음: {knownCount}</span>
+              <span className={pill.unknown}>틀림: {unknownCount}</span>
             </div>
           </div>
         </div>
 
         {/* 플래시카드 본문 */}
-        <div className="flex-1 flex flex-col">
+        <div className={pages.flash.bodyCol}>
           {/* 질문 카드 */}
-          <div className="flex-1 border rounded-lg p-4 mb-4 bg-gray-50 flex flex-col">
-            <div className="text-xs font-semibold text-gray-500 mb-2">
-              질문
-            </div>
-            <div className="text-lg font-medium text-gray-900">
-              {currentCard.question}
-            </div>
+          <div className={pages.flash.qCard}>
+            <div className={`${text.descXs} font-semibold mb-2`}>질문</div>
+            <div className="text-lg font-medium text-gray-900">{currentCard.question}</div>
 
-            {/* 태그 */}
             {currentCard.tags && currentCard.tags.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {currentCard.tags.map((tag, idx) => (
-                  <span
-                    key={idx}
-                    className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-                  >
+                  <span key={idx} className={pill.tag}>
                     #{tag}
                   </span>
                 ))}
@@ -138,65 +126,66 @@ function FlashcardsPage() {
           </div>
 
           {/* 답안 카드 */}
-          <div className="border rounded-lg p-4 mb-4 bg-white">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-gray-500">정답</span>
+          <div className={pages.flash.aCard}>
+            <div className={pages.flash.aHeader}>
+              <span className={`${text.descXs} font-semibold`}>정답</span>
+
               <button
                 type="button"
                 onClick={handleToggleAnswer}
-                className="text-xs px-2 py-1 rounded-md border text-gray-700 hover:bg-gray-50"
+                className={`${btn.outlineBase} ${btn.outlineGray} text-xs px-2 py-1`}
               >
                 {showAnswer ? "정답 숨기기" : "정답 보기"}
               </button>
             </div>
+
             {showAnswer ? (
               <p className="text-sm text-gray-800 whitespace-pre-wrap">
                 {currentCard.answer}
               </p>
             ) : (
-              <p className="text-sm text-gray-400 italic">
-                정답 보기를 누르면 답이 표시됨
-              </p>
+              <p className="text-sm text-gray-400 italic">정답 보기를 누르면 답이 표시됨</p>
             )}
           </div>
 
           {/* 하단 버튼 영역 */}
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
+          <div className={pages.flash.bottomRow}>
+            <div className={pages.flash.btnGroup}>
               <button
                 type="button"
                 onClick={handlePrev}
-                className="px-3 py-2 text-sm rounded-md border text-gray-700 hover:bg-gray-50"
+                className={`${btn.outlineBase} ${btn.outlineGray} px-3 py-2`}
               >
                 ← 이전
               </button>
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-3 py-2 text-sm rounded-md border text-gray-700 hover:bg-gray-50"
+                className={`${btn.outlineBase} ${btn.outlineGray} px-3 py-2`}
               >
                 다음 →
               </button>
               <button
                 type="button"
                 onClick={handleShuffle}
-                className="px-3 py-2 text-sm rounded-md border text-gray-700 hover:bg-gray-50"
+                className={`${btn.outlineBase} ${btn.outlineGray} px-3 py-2`}
               >
                 섞기(구현 중)
               </button>
             </div>
-            <div className="flex gap-2">
+
+            <div className={pages.flash.btnGroup}>
               <button
                 type="button"
                 onClick={handleMarkUnknown}
-                className="px-3 py-2 text-sm rounded-md border border-red-600 text-red-600 hover:bg-red-50"
+                className={`${btn.outlineBase} ${btn.outlineRed} px-3 py-2`}
               >
                 틀림
               </button>
               <button
                 type="button"
                 onClick={handleMarkKnown}
-                className="px-3 py-2 text-sm rounded-md border border-green-600 text-green-600 hover:bg-green-50"
+                className={`${btn.outlineBase} ${btn.outlineBlue} px-3 py-2`}
               >
                 맞음
               </button>
@@ -205,35 +194,29 @@ function FlashcardsPage() {
         </div>
       </section>
 
-      <aside className="w-80 bg-white rounded-lg shadow p-4 flex flex-col">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">
-          카드 목록
-        </h2>
-        <p className="text-xs text-gray-500 mb-3">
-          추후 백엔드에서 불러오는
-          데이터로 대체.
-        </p>
+      {/* 오른쪽: 카드 목록 */}
+      <aside className={`${card.base} ${pages.flash.aside}`}>
+        <h2 className={text.sectionTitle}>카드 목록</h2>
+        <p className={text.descXs}>추후 백엔드에서 불러오는 데이터로 대체.</p>
 
-        <div className="flex-1 overflow-y-auto">
-          <ul className="space-y-2">
-            {flashcards.map((card, index) => (
-              <li key={card.id}>
+        <div className={pages.flash.asideList}>
+          <ul className={pages.flash.asideUl}>
+            {flashcards.map((cardItem, index) => (
+              <li key={cardItem.id}>
                 <button
                   type="button"
                   onClick={() => handleSelectCard(index)}
-                  className={`w-full text-left px-2 py-2 rounded-md text-xs ${
-                    index === currentIndex
-                      ? "bg-blue-50 border border-blue-300 text-blue-800"
-                      : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
+                  className={`${pages.flash.itemBtnBase} ${
+                    index === currentIndex ? pages.flash.itemActive : pages.flash.itemInactive
                   }`}
                 >
-                  <div className="flex justify-between mb-1">
-                    <span className="font-semibold">#{card.id}</span>
+                  <div className={pages.flash.itemTopRow}>
+                    <span className={pages.flash.itemId}>#{cardItem.id}</span>
                     <span>
                       {index + 1} / {total}
                     </span>
                   </div>
-                  <div className="truncate">{card.question}</div>
+                  <div className={pages.flash.itemQuestion}>{cardItem.question}</div>
                 </button>
               </li>
             ))}
@@ -243,5 +226,4 @@ function FlashcardsPage() {
     </div>
   );
 }
-
 export default FlashcardsPage;

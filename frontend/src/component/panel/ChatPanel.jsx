@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import { chat, text } from "../../asset/style/uiClasses"
 
 function ChatPanel({ noteId, noteTitle, noteContent }) {
-
     const [messages, setMessages] = useState([
     {
         role: "assistant",
@@ -77,35 +77,33 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
     };
 
     return (
-    <div className="w-80 bg-white rounded-lg shadow p-4 flex flex-col h-full">
-        <div className="mb-3">
-            <h2 className="text-sm font-semibold text-gray-700">StudyI 챗봇</h2>
-            <p className="text-xs text-gray-500 mt-1">
-                노트 내용이나 관련 개념 혹은 모르는 내용 등을 질문해 보세요.
-            </p>
-        </div>
-
-        <div className="flex-1 border border-gray-200 rounded-md p-2 mb-3 overflow-y-auto text-sm bg-gray-50">
-            {messages.length === 0 && (
-                <p className="text-xs text-gray-400">
-                    아직 메시지가 없습니다. 아래 입력창에 질문을 적어보세요.
+        <div className={chat.container}>
+            <div className={chat.headerWrap}>
+                <h2 className={chat.headerTitle}>StudyI 챗봇</h2>
+                <p className={chat.headerDesc}>
+                    노트 내용이나 관련 개념 혹은 모르는 내용 등을 질문해 보세요.
                 </p>
-            )}
+            </div>
 
-            {messages.map((msg, index) => {
-                const isUser = msg.role === "user";
-                return (
-                    <div
-                        key={index}
-                        className={`mb-2 flex ${
-                            isUser ? "justify-end" : "justify-start"
-                        }`}
-                    >
+            <div className={chat.list}>
+                {messages.length === 0 && (
+                    <p className={chat.empty}>
+                        아직 메시지가 없습니다. 아래 입력창에 질문을 적어보세요.
+                    </p>
+                )}
+
+                {messages.map((msg, index) => {
+                    const isUser = msg.role === "user";
+                    return (
                         <div
-                            className={`max-w-[80%] whitespace-pre-wrap px-3 py-2 rounded-lg text-xs ${
-                                isUser
-                                    ? "bg-blue-600 text-white rounded-br-none"
-                                    : "bg-white text-gray-800 border border-gray-200 rounded-bl-none"
+                            key={index}
+                            className={`${chat.rowBase} ${
+                                isUser ? "justify-end" : "justify-start"
+                            }`}
+                        >
+                            <div
+                                className={`${chat.bubbleBase} ${
+                                    isUser ? chat.bubbleUser : chat.bubbleAssistant
                                 }`}
                             >
                                 {msg.content}
@@ -114,34 +112,25 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
                     );
                 })}
 
-                {loading && (
-                    <div className="text-xs text-gray-500 mt-1">
-                        StudyI가 생각 중입니다...
-                    </div>
-                )}
+                {loading && <div className={chat.thinking}>StudyI가 생각 중입니다...</div>}
             </div>
 
-            {error && (
-                <div className="mb-2 text-xs text-red-500 border border-red-200 bg-red-50 rounded-md px-2 py-1">
-                    {error}
-                </div>
-            )}
+            {error && <div className={chat.errorBox}>{error}</div>}
 
             <div className="mt-auto">
                 <textarea
-                    className="w-full border rounded-md px-2 py-1 text-xs resize-none h-16 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="질문을 입력하고 Enter를 눌러 전송 
-                    (Shift+Enter 줄바꿈)"
+                    className={chat.input}
+                    placeholder={"질문을 입력하고 Enter를 눌러 전송\n(Shift+Enter 줄바꿈)"}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                 />
-                <div className="flex justify-end mt-1">
+                <div className={chat.sendWrap}>
                     <button
                         type="button"
                         onClick={handleSend}
                         disabled={loading || !input.trim()}
-                        className="px-3 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+                        className={chat.sendBtn}
                     >
                         {loading ? "전송 중..." : "전송"}
                     </button>
@@ -150,5 +139,6 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
         </div>
     );
 }
+
 
 export default ChatPanel;
