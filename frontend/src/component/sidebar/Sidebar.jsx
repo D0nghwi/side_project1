@@ -1,28 +1,26 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-
-const linkBase =
-  "block px-4 py-2 rounded-md text-sm font-medium mb-1 transition-colors";
-const linkActive = "bg-blue-100 text-blue-700";
-const linkInactive = "text-gray-700 hover:bg-gray-100";
+import { sidebar } from "../../asset/style/uiClasses";
 
 function Sidebar() {
   return (
-    <aside className="w-56 bg-white border-r border-gray-200 p-4">
-      <h2 className="text-xs font-semibold text-gray-500 mb-2">메뉴</h2>
-      <nav className="flex flex-col">
+    <aside className={sidebar.aside}>
+      <h2 className={sidebar.title}>메뉴</h2>
+
+      <nav className={sidebar.nav}>
         <NavLink
           to="/notes"
           className={({ isActive }) =>
-            `${linkBase} ${isActive ? linkActive : linkInactive}`
+            `${sidebar.linkBase} ${isActive ? sidebar.linkActive : sidebar.linkInactive}`
           }
         >
           노트 목록
         </NavLink>
+
         <NavLink
           to="/flashcards"
           className={({ isActive }) =>
-            `${linkBase} ${isActive ? linkActive : linkInactive}`
+            `${sidebar.linkBase} ${isActive ? sidebar.linkActive : sidebar.linkInactive}`
           }
         >
           플래시카드
