@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { pages, card, text, btn, form, alertBox } from "../../asset/style/uiClasses";
+import TextEditor from "../../component/editor/TextEditor";
 
 function NoteEditPage() {
   const { id } = useParams();
@@ -126,12 +127,7 @@ function NoteEditPage() {
 
         <div>
           <label className={form.label}>내용</label>
-          <textarea
-            className={form.textarea}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="노트 내용을 입력하세요"
-          />
+          <TextEditor value={content} onChange={setContent} />
         </div>
 
         <div>

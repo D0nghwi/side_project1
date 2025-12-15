@@ -10,7 +10,7 @@ print("[HyperCLOVAX-SEED] 모델 로딩 시작...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME,
-    device_map="auto",  
+    device_map={"": "cpu"},  
 )
 print("[HyperCLOVAX-SEED] 모델 로딩 완료!")
 
