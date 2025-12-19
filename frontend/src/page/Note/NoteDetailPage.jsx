@@ -69,7 +69,6 @@ function NoteDetailPage() {
             <h1 className={text.titleLg}>
               {note ? note.title : `노트 #${id} 상세`}
             </h1>
-            <p className={text.descXs}>나중에 여기 editor / viewer가 들어올 예정</p>
           </div>
 
           <div className="flex items-center gap-2">

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { pages, card, text, btn, form, alertBox } from "../../asset/style/uiClasses"; 
+import TextEditor from "../../component/editor/TextEditor";
 
 function NoteCreatePage() {
   const navigate = useNavigate();
@@ -91,12 +92,7 @@ function NoteCreatePage() {
 
        <div>
           <label className={form.label}>내용</label>
-          <textarea
-            className={form.textarea}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="노트 내용을 적어주세요."
-          />
+          <TextEditor value={content} onChange={setContent} />
         </div>
 
         <div>
@@ -118,6 +114,7 @@ function NoteCreatePage() {
           >
             취소
           </button>
+          
           <button type="submit" disabled={loading} className={btn.submit}>
             {loading ? "저장 중..." : "저장"}
           </button>
