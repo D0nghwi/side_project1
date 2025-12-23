@@ -2,11 +2,19 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import SessionLocal
 from app.models.notes import Note as NoteModel
 from app.schemas.notes import NoteCreate, NoteUpdate, NoteOut
 
 router = APIRouter()
+
+# DB 세션을 요청마다 열고 닫기 위한 의존성
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # 문자열 ↔ 리스트 변환 함수
 def tags_str_to_list(tags_str: str | None) -> list[str]:

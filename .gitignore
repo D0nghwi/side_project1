@@ -69,4 +69,3 @@ uvicorn.log
 
 # 기타
 *.sqlite3
-.gitattributes

@@ -2,8 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.routers import notes, chat, flashcards
-
+from app.routers import notes, chat
 
 app = FastAPI()
 
@@ -38,8 +37,3 @@ app.include_router(
     prefix="/chat",
     tags=["chat"],
 ) 
-app.include_router(
-    flashcards.router,
-    prefix="/flashcard",
-    tags=["flashcard"],
-)
