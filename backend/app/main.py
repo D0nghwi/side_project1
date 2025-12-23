@@ -40,6 +40,6 @@ app.include_router(
 ) 
 app.include_router(
     flashcards.router,
-    prefix="/flashcard",
-    tags=["flashcard"],
+    prefix="/flashcards",
+    tags=["flashcards"],
 )

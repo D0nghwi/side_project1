@@ -33,7 +33,7 @@ function FlashcardsPage() {
       setDeckLoading(true);
       setError(null);
 
-      const res = await fetch(`${API_BASE}/decks`);
+      const res = await fetch(`${API_BASE}/flashcards/decks`);
       if (!res.ok) throw new Error("덱 목록을 불러오지 못했습니다.");
 
       const data = await res.json();
@@ -50,7 +50,7 @@ function FlashcardsPage() {
       setLoadingCards(true);
       setError(null);
 
-      const res = await fetch(`${API_BASE}/decks/${deckId}`);
+      const res = await fetch(`${API_BASE}/flashcards/decks/${deckId}`);
       if (!res.ok) throw new Error("덱 상세를 불러오지 못했습니다.");
 
       const data = await res.json();
@@ -162,7 +162,7 @@ function FlashcardsPage() {
       setGenerating(true);
       setError(null);
 
-      const res = await fetch(`${API_BASE}/flashcards/generate`, {
+      const res = await fetch(`${API_BASE}/flashcards/flashcards/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ note_id: noteId, mode: "rule" }),
@@ -217,7 +217,7 @@ function FlashcardsPage() {
         })),
       };
 
-      const res = await fetch(`${API_BASE}/decks`, {
+      const res = await fetch(`${API_BASE}/flashcards/decks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, String, Text, DateTime, ForeignKey, func
+from sqlalchemy import Column, Integer, Integer, String, Text, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -7,8 +7,8 @@ from app.database import Base
 class Deck(Base):
     __tablename__ = "decks"
 
-    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
-    note_id = Column(BigInteger, nullable=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    note_id = Column(Integer, nullable=True, index=True)
     title = Column(String(255), nullable=False)
     source_type = Column(String(16), nullable=False, default="rule") 
 
@@ -21,8 +21,8 @@ class Deck(Base):
 class Flashcard(Base):
     __tablename__ = "flashcards"
 
-    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
-    deck_id = Column(BigInteger, ForeignKey("decks.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    deck_id = Column(Integer, ForeignKey("decks.id", ondelete="CASCADE"), nullable=False, index=True)
 
     order_index = Column(Integer, nullable=False, default=0)
     question = Column(Text, nullable=False)
