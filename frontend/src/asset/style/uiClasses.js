@@ -25,6 +25,9 @@ export const text = {
     mutedXs: "text-xs text-gray-400",
 
     error: "text-red-500",
+
+    qTitle: "text-lg font-medium text-gray-900",
+    bodyWrapSm: "text-sm text-gray-800 whitespace-pre-wrap",
 };
 
 export const pill = {
@@ -93,31 +96,31 @@ export const sidebar = {
 };
 
 export const chat = {
-  container: "w-80 bg-white rounded-lg shadow p-4 flex flex-col h-full",
+    container: "w-80 bg-white rounded-lg shadow p-4 flex flex-col h-full",
 
-  headerWrap: "mb-3",
-  headerTitle: "text-sm font-semibold text-gray-700",
-  headerDesc: "text-xs text-gray-500 mt-1",
+    headerWrap: "mb-3",
+    headerTitle: "text-sm font-semibold text-gray-700",
+    headerDesc: "text-xs text-gray-500 mt-1",
 
-  list:
-    "flex-1 border border-gray-200 rounded-md p-2 mb-3 overflow-y-auto text-sm bg-gray-50",
-  empty: "text-xs text-gray-400",
+    list:
+        "flex-1 border border-gray-200 rounded-md p-2 mb-3 overflow-y-auto text-sm bg-gray-50",
+    empty: "text-xs text-gray-400",
 
-  rowBase: "mb-2 flex",
-  bubbleBase: "max-w-[80%] whitespace-pre-wrap px-3 py-2 rounded-lg text-xs",
-  bubbleUser: "bg-blue-600 text-white rounded-br-none",
-  bubbleAssistant: "bg-white text-gray-800 border border-gray-200 rounded-bl-none",
+    rowBase: "mb-2 flex",
+    bubbleBase: "max-w-[80%] whitespace-pre-wrap px-3 py-2 rounded-lg text-xs",
+    bubbleUser: "bg-blue-600 text-white rounded-br-none",
+    bubbleAssistant: "bg-white text-gray-800 border border-gray-200 rounded-bl-none",
 
-  thinking: "text-xs text-gray-500 mt-1",
+    thinking: "text-xs text-gray-500 mt-1",
 
-  errorBox:
-    "mb-2 text-xs text-red-500 border border-red-200 bg-red-50 rounded-md px-2 py-1",
+    errorBox:
+        "mb-2 text-xs text-red-500 border border-red-200 bg-red-50 rounded-md px-2 py-1",
 
-  input:
-    "w-full border rounded-md px-2 py-1 text-xs resize-none h-16 focus:outline-none focus:ring-2 focus:ring-blue-500",
-  sendWrap: "flex justify-end mt-1",
-  sendBtn:
-    "px-3 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60",
+    input:
+        "w-full border rounded-md px-2 py-1 text-xs resize-none h-16 focus:outline-none focus:ring-2 focus:ring-blue-500",
+    sendWrap: "flex justify-end mt-1",
+    sendBtn:
+        "px-3 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60",
 };
 
 export const pages = {
@@ -128,24 +131,26 @@ export const pages = {
         itemLink: "block border rounded-lg p-3 hover:bg-gray-50 cursor-pointer",
         itemTitle: "font-semibold",
         itemContent: "text-sm text-gray-600 mt-1 line-clamp-2",
-  },
+    },
 
     noteForm: {
         page: "max-w-3xl mx-auto p-4 space-y-4",
         header: "flex items-center justify-between",
         formCard: "space-y-4",
         actions: "flex justify-end gap-2",
-  },
+    },
 
     flash: {
         page: "flex h-full gap-4 p-4",
         mainSection: "flex-1 flex flex-col",
         headerRow: "flex items-center justify-between mb-4",
         headerMeta: "flex items-center gap-3 text-xs text-gray-600",
+
         bodyCol: "flex-1 flex flex-col",
         qCard: "flex-1 border rounded-lg p-4 mb-4 bg-gray-50 flex flex-col",
         aCard: "border rounded-lg p-4 mb-4 bg-white",
         aHeader: "flex items-center justify-between mb-2",
+
         bottomRow: "flex items-center justify-between",
         btnGroup: "flex gap-2",
         aside: "w-80 flex flex-col",
@@ -157,5 +162,12 @@ export const pages = {
         itemTopRow: "flex justify-between mb-1",
         itemId: "font-semibold",
         itemQuestion: "truncate",
+        rowBetween: "flex items-center justify-between", 
+        rowBetweenMt4: "mt-4 flex items-center justify-between",
+        rowGap2: "flex items-center gap-2",                    
+        draftCardRow: "flex items-start gap-3",                
+        draftCardGrid: "flex-1 grid grid-cols-1 gap-2",
+        createGrid: "mt-4 grid grid-cols-1 md:grid-cols-3 gap-3",
+        createActions: "md:col-span-2 flex items-end gap-2",
     },
 };
