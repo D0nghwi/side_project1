@@ -131,6 +131,7 @@ export const pages = {
         itemLink: "block border rounded-lg p-3 hover:bg-gray-50 cursor-pointer",
         itemTitle: "font-semibold",
         itemContent: "text-sm text-gray-600 mt-1 line-clamp-2",
+        tag: "mt-2 flex flex-wrap gap-2",
     },
 
     noteForm: {

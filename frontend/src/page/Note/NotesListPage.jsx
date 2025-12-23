@@ -1,6 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo} from "react";
 import { Link } from "react-router-dom";
 import { pages, btn, pill, text } from "../../asset/style/uiClasses";
+
+const htmlToText = (html) => {
+  if (!html) return "";
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return (tmp.textContent || tmp.innerText || "").replace(/\s+/g, " ").trim();
+};
+
 
 function NotesListPage() {
   const [notes, setNotes] = useState([]);
@@ -30,6 +38,13 @@ function NotesListPage() {
     fetchNotes();
   }, []);
 
+  const notesWithPreview = useMemo(() => {
+    return notes.map((n) => ({
+      ...n,
+      preview: htmlToText(n.content),
+    }));
+  }, [notes]);
+
   if (loading) {
     return <div className="p-4">노트 목록 불러오는 중...</div>;
   }
@@ -48,24 +63,21 @@ function NotesListPage() {
         </Link>
       </div>
 
-      {notes.length === 0 ? (
-        <p className="text-gray-500">아직 노트가 없습니다.</p>
+      {notesWithPreview.length === 0 ? (
+        <p className={text.descXs}>아직 노트가 없습니다.</p>
       ) : (
         <ul className={pages.notesList.list}>
-          {notes.map((note) => (
+          {notesWithPreview.map((note) => (
             <li key={note.id}>
-              <Link
-                to={`/notes/${note.id}`}
-                className={pages.notesList.itemLink}
-              >
+              <Link to={`/notes/${note.id}`} className={pages.notesList.itemLink}>
                 <h2 className={pages.notesList.itemTitle}>{note.title}</h2>
 
                 <p className={pages.notesList.itemContent}>
-                  {note.content}
+                  {note.preview || "아직 내용이 비어 있습니다."}
                 </p>
 
                 {note.tags && note.tags.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className={pages.notesList.tag}>
                     {note.tags.map((tag, idx) => (
                       <span key={idx} className={pill.tag}>
                         #{tag}

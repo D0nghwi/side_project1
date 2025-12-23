@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { layout, card, text, btn, pill } from "../../asset/style/uiClasses";
+import { layout, card, text, btn, pill, pages } from "../../asset/style/uiClasses";
 
 import ChatPanel from "../../component/panel/ChatPanel";
 
@@ -71,7 +71,7 @@ function NoteDetailPage() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className={pages.flash.rowGap2}>
             <Link to="/notes" className={btn.linkGray}>
               ← 목록
             </Link>
@@ -101,13 +101,18 @@ function NoteDetailPage() {
           {!loading && !error && note && (
             <>
               <div className="mb-3">
-                {note.content || (
+                {note.content ? (
+                  <div
+                    className="prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: note.content }}
+                  />
+                ) : (
                   <span className={text.mutedXs}>아직 내용이 비어 있습니다.</span>
                 )}
               </div>
 
               {note.tags && note.tags.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className={pages.notesList.tag}>
                   {note.tags.map((tag, idx) => (
                     <span key={idx} className={pill.tag}>
                       #{tag}
