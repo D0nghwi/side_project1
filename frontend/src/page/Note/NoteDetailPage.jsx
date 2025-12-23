@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { layout, card, text, btn, pill, pages } from "../../asset/style/uiClasses";
+
+import ChatPanel from "../../component/panel/ChatPanel";
 
 function NoteDetailPage() {
   const { id } = useParams();
@@ -58,69 +61,60 @@ function NoteDetailPage() {
   };
 
   return (
-    <div className="flex gap-4 h-full">
+    <div className={layout.row}>
       {/* 노트 내용 */}
-      <section className="flex-1 bg-white rounded-lg shadow p-4">
-        {/* 제목 + 버튼 */}
+      <section className={`${card.base} flex-1`}>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1 className={text.titleLg}>
               {note ? note.title : `노트 #${id} 상세`}
             </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              나중에 여기 editor / viewer가 들어올 예정
-            </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link
-              to="/"
-              className="text-sm text-gray-600 hover:underline"
-            >
+          <div className={pages.flash.rowGap2}>
+            <Link to="/notes" className={btn.linkGray}>
               ← 목록
             </Link>
+
             <button
               onClick={() => navigate(`/notes/${id}/edit`)}
-              className="px-3 py-1 text-sm rounded-md border border-blue-600 text-blue-600 hover:bg-blue-50"
+              className={`${btn.outlineBase} ${btn.outlineBlue}`}
             >
               수정
             </button>
+
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="px-3 py-1 text-sm rounded-md border border-red-600 text-red-600 hover:bg-red-50 disabled:opacity-60"
+              className={`${btn.outlineBase} ${btn.outlineRed}`}
             >
               {deleting ? "삭제 중..." : "삭제"}
             </button>
           </div>
         </div>
 
-        <div className="border border-dashed border-gray-300 rounded-md p-4 text-sm text-gray-700 whitespace-pre-wrap">
-          {loading && <span className="text-gray-400">노트 불러오는 중...</span>}
+        <div className={card.dashed}>
+          {loading && <span className={text.mutedXs}>노트 불러오는 중...</span>}
 
-          {error && (
-            <span className="text-red-500">
-              에러 발생: {error}
-            </span>
-          )}
+          {error && <span className={text.error}>에러 발생: {error}</span>}
 
           {!loading && !error && note && (
             <>
               <div className="mb-3">
-                {note.content || (
-                  <span className="text-gray-400">
-                    아직 내용이 비어 있습니다.
-                  </span>
+                {note.content ? (
+                  <div
+                    className="prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: note.content }}
+                  />
+                ) : (
+                  <span className={text.mutedXs}>아직 내용이 비어 있습니다.</span>
                 )}
               </div>
 
               {note.tags && note.tags.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className={pages.notesList.tag}>
                   {note.tags.map((tag, idx) => (
-                    <span
-                      key={idx}
-                      className="inline-block text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-                    >
+                    <span key={idx} className={pill.tag}>
                       #{tag}
                     </span>
                   ))}
@@ -131,17 +125,13 @@ function NoteDetailPage() {
         </div>
       </section>
 
-      {/* 챗봇 나중에 연결 예정 */}
-      <aside className="w-80 bg-white rounded-lg shadow p-4 flex flex-col">
-        <h2 className="text-sm font-semibold text-gray-700 mb-2">
-          AI 챗봇 (준비중)
-        </h2>
-        <p className="text-xs text-gray-500 mb-3">
-          챗봇 UI가 여기에 들어올 예정
-        </p>
-        <div className="flex-1 border border-dashed border-gray-300 rounded-md p-3 text-xs text-gray-400">
-          메시지 리스트 및 입력창 컴포넌트 자리
-        </div>
+      {/* 사이드 챗 패널 */}
+      <aside className={layout.asideW80}>
+        <ChatPanel
+          noteId={note?.id || id}
+          noteTitle={note?.title}
+          noteContent={note?.content}
+        />
       </aside>
     </div>
   );

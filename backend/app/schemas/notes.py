@@ -21,4 +21,4 @@ class NoteOut(NoteBase):
     id: int
 
     class Config:
-        orm_mode = True # ORM 모델을 Pydantic 모델로 변환 가능하게 함
+        from_attributes = True # ORM 모델을 Pydantic 모델로 변환 가능하게 함

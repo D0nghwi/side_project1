@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { pages, card, text, btn, form, alertBox } from "../../asset/style/uiClasses"; 
+import TextEditor from "../../component/editor/TextEditor";
 
 function NoteCreatePage() {
   const navigate = useNavigate();
@@ -35,10 +37,10 @@ function NoteCreatePage() {
       const payload = {
         title,
         content,
-        tags, // null 또는 string[]
+        tags, // null 또는 string
       };
-      //디버깅용 JSON 출력
-      //console.log("POST /notes payload:", payload);
+
+      //디버깅용 JSON 출력 : console.log("POST /notes payload:", payload);
       const response = await fetch("http://localhost:8000/notes/", {
         method: "POST",
         headers: {
@@ -63,72 +65,57 @@ function NoteCreatePage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">새 노트 작성</h1>
-        <Link to="/" className="text-sm text-blue-600 hover:underline">
+    <div className={pages.noteForm.page}>
+      <div className={pages.noteForm.header}>
+        <h1 className={text.titleLg}>새 노트 작성</h1>
+        <Link to="/" className={btn.linkBlue}>
           ← 노트 목록으로
         </Link>
       </div>
 
-      {error && (
-        <div className="text-sm text-red-500 border border-red-200 bg-red-50 rounded-md px-3 py-2">
-          {error}
-        </div>
-      )}
+      {error && <div className={alertBox.error}>{error}</div>}
 
-      <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-lg shadow p-4">
+      <form
+        onSubmit={handleSubmit}
+        className={`${pages.noteForm.formCard} ${card.base}`}
+      >
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            제목
-          </label>
+          <label className={form.label}>제목</label>
           <input
             type="text"
-            className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={form.input}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="예: 리액트 공부 노트"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            내용
-          </label>
-          <textarea
-            className="w-full border rounded-md px-3 py-2 text-sm h-40 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="노트 내용을 적어주세요."
-          />
+       <div>
+          <label className={form.label}>내용</label>
+          <TextEditor value={content} onChange={setContent} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            태그 (쉼표로 구분)
-          </label>
+          <label className={form.label}>태그 (쉼표로 구분)</label>
           <input
             type="text"
-            className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={form.input}
             value={tagsInput}
             onChange={(e) => setTagsInput(e.target.value)}
             placeholder="예: react, fastapi, memo"
           />
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div className={pages.noteForm.actions}>
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-4 py-2 text-sm border rounded-md text-gray-600 hover:bg-gray-50"
+            className={btn.cancel}
           >
             취소
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
-          >
+          
+          <button type="submit" disabled={loading} className={btn.submit}>
             {loading ? "저장 중..." : "저장"}
           </button>
         </div>

@@ -14,3 +14,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # 모델들이 상속할 Base 클래스
 Base = declarative_base()
+
+# DB 세션을 요청마다 열고 닫기 위한 의존성
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
