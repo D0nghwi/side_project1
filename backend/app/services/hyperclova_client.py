@@ -1,4 +1,3 @@
-
 from typing import List, Dict
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -11,7 +10,7 @@ print("[HyperCLOVAX-SEED] 모델 로딩 시작...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME,
-    device_map={"": "cpu"},  
+    device_map="auto",  
 )
 print("[HyperCLOVAX-SEED] 모델 로딩 완료!")
 
@@ -33,6 +32,7 @@ def build_chat_messages(
 
     # user/assistant 메시지들 추가
     chat.extend(user_messages)
+
     return chat
 
 
@@ -52,8 +52,6 @@ def generate_chat_response(
     device = model.device
     inputs = {k: v.to(device) for k, v in inputs.items()}
 
-    input_ids = inputs["input_ids"] # (1, seq_len)
-    
     # 응답 생성
     with torch.no_grad():
         output_ids = model.generate(
@@ -63,12 +61,10 @@ def generate_chat_response(
             tokenizer=tokenizer,
         )
 
-    generated_ids = output_ids[0, input_ids.shape[1]:]  # 생성된 부분만 추출
-    
     # 출력 디코딩
-    answer_text = tokenizer.batch_decode(
-        [generated_ids],
-        skip_special_tokens=True,
+    output_text = tokenizer.batch_decode(
+        output_ids,
+        skip_special_tokens=False,
     )[0]
 
-    return answer_text
+    return output_text

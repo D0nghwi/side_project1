@@ -3,13 +3,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 //파일 임포트시 {} 주의 (디폴트 익스포트된 것들은 {} 없이 임포트)
-import MainLayout from "./interface/MainLayout";
-import NotesListPage from "./page/Note/NotesListPage";
-import NoteCreatePage from "./page/Note/NoteCreatePage";
-import NoteDetailPage from "./page/Note/NoteDetailPage";
-import NoteEditPage from "./page/Note/NoteEditPage";
-import FlashcardsPage from "./page/Flashcard/FlashcardsPage";
-import NotFoundPage from "./page/Error/NotFoundPage";
+import MainLayout from "./layouts/MainLayout";
+import NotesListPage from "./pages/NotesListPage";
+import NoteCreatePage from "./pages/NoteCreatePage";
+import NoteDetailPage from "./pages/NoteDetailPage";
+import NoteEditPage from "./pages/NoteEditPage";
+import FlashcardsPage from "./pages/FlashcardsPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const queryClient = new QueryClient();
 
