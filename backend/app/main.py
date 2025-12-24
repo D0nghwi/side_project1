@@ -3,9 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
 from app.routers import notes, chat, flashcards
-
+from app.errors.base import AppError
+from app.errors.http import app_error_handler
 
 app = FastAPI()
+
+app.add_exception_handler(AppError, app_error_handler)
 
 # 앱 시작 시 테이블 생성
 Base.metadata.create_all(bind=engine)
@@ -33,13 +36,16 @@ app.include_router(
     prefix="/notes",
     tags=["notes"],
 )
+
 app.include_router(
     chat.router,
     prefix="/chat",
     tags=["chat"],
 ) 
+
 app.include_router(
     flashcards.router,
     prefix="/flashcards",
     tags=["flashcards"],
 )
+

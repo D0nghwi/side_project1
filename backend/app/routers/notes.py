@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.notes import Note as NoteModel
 from app.schemas.notes import NoteCreate, NoteUpdate, NoteOut
+from app.errors.domain import NoteNotFound
 
 router = APIRouter()
 
@@ -42,7 +43,7 @@ def read_notes(db: Session = Depends(get_db)):
 def read_note(note_id: int, db: Session = Depends(get_db)):
     note = db.query(NoteModel).filter(NoteModel.id == note_id).first()
     if not note:
-        raise HTTPException(status_code=404, detail="Note not found")
+        raise NoteNotFound(note_id)
     return NoteOut(
         id=note.id,
         title=note.title,

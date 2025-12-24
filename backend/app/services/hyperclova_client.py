@@ -38,7 +38,7 @@ def build_chat_messages(
 
 def generate_chat_response(
     messages: List[Dict[str, str]],
-    max_length: int = 512,
+    max_new_tokens: int = 256,
 ) -> str:
     # 토크나이징
     inputs = tokenizer.apply_chat_template(
@@ -58,7 +58,7 @@ def generate_chat_response(
     with torch.no_grad():
         output_ids = model.generate(
             **inputs,
-            max_length=max_length,
+            max_new_tokens=max_new_tokens,
             stop_strings=["<|endofturn|>", "<|stop|>"],
             tokenizer=tokenizer,
         )

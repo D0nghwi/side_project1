@@ -16,6 +16,7 @@ from app.schemas.flashcards import (
     DeckDetail,
     CardOut,
 )
+from app.errors.domain import (NoteNotFound, DeckNotFound, TitleRequired, CardsEmpty)
 
 router = APIRouter(tags=["flashcards"])
 
@@ -62,7 +63,7 @@ def _rule_generate_cards(note_text: str) -> List[dict]:
 def generate_flashcards(payload: GenerateRequest, db: Session = Depends(get_db)):
     note = db.query(Note).filter(Note.id == payload.note_id).first()
     if not note:
-        raise HTTPException(status_code=404, detail="Note not found")
+        raise NoteNotFound(payload.note_id)
 
     note_text = _strip_html(note.content or "")
     cards_raw = _rule_generate_cards(note_text)
@@ -86,10 +87,10 @@ def generate_flashcards(payload: GenerateRequest, db: Session = Depends(get_db))
 @router.post("/decks", response_model=DeckCreatedResponse)
 def create_deck(payload: DeckCreateRequest, db: Session = Depends(get_db)):
     if not payload.title.strip():
-        raise HTTPException(status_code=400, detail="title is required")
+        raise TitleRequired()
 
     if len(payload.cards) == 0:
-        raise HTTPException(status_code=400, detail="cards is empty")
+        raise CardsEmpty()
 
     deck = Deck(
         note_id=payload.note_id,
@@ -142,7 +143,7 @@ def list_decks(db: Session = Depends(get_db)):
 def get_deck(deck_id: int, db: Session = Depends(get_db)):
     deck = db.query(Deck).filter(Deck.id == deck_id).first()
     if not deck:
-        raise HTTPException(status_code=404, detail="Deck not found")
+        raise DeckNotFound(deck_id)
 
     cards = (
         db.query(Flashcard)
