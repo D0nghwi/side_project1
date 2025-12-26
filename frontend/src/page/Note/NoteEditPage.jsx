@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { pages, card, text, btn, form, alertBox } from "../../asset/style/uiClasses";
 import TextEditor from "../../component/editor/TextEditor";
+import apiClient from "../../lib/apiClient";
 
 function NoteEditPage() {
   const { id } = useParams();
@@ -21,20 +22,17 @@ function NoteEditPage() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`http://localhost:8000/notes/${id}`);
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error("해당 노트를 찾을 수 없습니다.");
-          }
-          throw new Error("노트 불러오기에 실패했습니다.");
-        }
+        const { data } = await apiClient.get(`/notes/${id}`);
 
-        const data = await response.json();
         setTitle(data.title || "");
         setContent(data.content || "");
         setTagsInput(data.tags ? data.tags.join(", ") : "");
       } catch (err) {
-        setError(err.message || "알 수 없는 오류");
+        const msg =
+          err?.response?.status === 404
+            ? "해당 노트를 찾을 수 없습니다."
+            : err?.response?.data?.detail || "노트 불러오기에 실패했습니다.";
+        setError(msg);
       } finally {
         setLoading(false);
       }
@@ -63,20 +61,16 @@ function NoteEditPage() {
               .filter(Boolean)
           : null;
       
-      const response = await fetch(`http://localhost:8000/notes/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content, tags }),
+      const { data: updated } = await apiClient.put(`/notes/${id}`, {
+        title,
+        content,
+        tags,
       });
 
-      if (!response.ok) {
-        throw new Error("노트 수정에 실패했습니다.");
-      }
-
-      const updated = await response.json();
       navigate(`/notes/${updated.id}`);
     } catch (err) {
-      setError(err.message || "알 수 없는 오류");
+      const msg = err?.response?.data?.detail || "노트 수정에 실패했습니다.";
+      setError(msg);
     } finally {
       setSaving(false);
     }

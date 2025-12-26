@@ -1,12 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# SQLite 파일 DB 경로
-SQLALCHEMY_DATABASE_URL = "sqlite:///./notes.db"
+from app.config import settings
+
+
+SQLALCHEMY_DATABASE_URL = settings.database_url
 
 # SQLite 필요한 옵션
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
+    settings.database_url,
     connect_args={"check_same_thread": False},
 )
 
