@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { nav } from "../../asset/style/uiClasses";
 
@@ -23,4 +22,3 @@ function NavBar() {
 }
 
 export default NavBar;
-

@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { pages, card, text, pill, btn, form, alertBox } from "../../asset/style/uiClasses";
-
-const API_BASE = "http://localhost:8000";
+import apiClient from "../../lib/apiClient";
 
 function FlashcardsPage() {
   const [decks, setDecks] = useState([]);
@@ -33,13 +32,11 @@ function FlashcardsPage() {
       setDeckLoading(true);
       setError(null);
 
-      const res = await fetch(`${API_BASE}/flashcards/decks`);
-      if (!res.ok) throw new Error("덱 목록을 불러오지 못했습니다.");
-
-      const data = await res.json();
+      const { data } = await apiClient.get("/flashcards/decks");
       setDecks(data);
     } catch (e) {
-      setError(e.message || "알 수 없는 오류");
+      const msg = e?.response?.data?.detail || "덱 목록을 불러오지 못했습니다.";
+      setError(msg);
     } finally {
       setDeckLoading(false);
     }
@@ -50,10 +47,8 @@ function FlashcardsPage() {
       setLoadingCards(true);
       setError(null);
 
-      const res = await fetch(`${API_BASE}/flashcards/decks/${deckId}`);
-      if (!res.ok) throw new Error("덱 상세를 불러오지 못했습니다.");
+      const { data } = await apiClient.get(`/flashcards/decks/${deckId}`);
 
-      const data = await res.json();
       const cards = (data.cards || []).map((c) => ({
         id: c.id,
         question: c.question,
@@ -69,7 +64,8 @@ function FlashcardsPage() {
       setKnownCount(0);
       setUnknownCount(0);
     } catch (e) {
-      setError(e.message || "알 수 없는 오류");
+      const msg = e?.response?.data?.detail || "덱 상세를 불러오지 못했습니다.";
+      setError(msg);
     } finally {
       setLoadingCards(false);
     }
@@ -162,18 +158,11 @@ function FlashcardsPage() {
       setGenerating(true);
       setError(null);
 
-      const res = await fetch(`${API_BASE}/flashcards/flashcards/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note_id: noteId, mode: "rule" }),
+      const { data } = await apiClient.post("/flashcards/flashcards/generate", {
+        note_id: noteId,
+        mode: "rule",
       });
 
-      if (!res.ok) {
-        if (res.status === 404) throw new Error("해당 노트를 찾을 수 없습니다.");
-        throw new Error("카드 생성에 실패했습니다.");
-      }
-
-      const data = await res.json();
       setDraftTitle(data.suggested_title || "새 덱");
       setDraftCards(
         (data.cards || []).map((c, idx) => ({
@@ -183,7 +172,13 @@ function FlashcardsPage() {
         }))
       );
     } catch (e) {
-      setError(e.message || "알 수 없는 오류");
+      const status = e?.response?.status;
+      if (status === 404) {
+        setError("해당 노트를 찾을 수 없습니다.");
+      } else {
+        const msg = e?.response?.data?.detail || "카드 생성에 실패했습니다.";
+        setError(msg);
+      }
     } finally {
       setGenerating(false);
     }
@@ -217,25 +212,19 @@ function FlashcardsPage() {
         })),
       };
 
-      const res = await fetch(`${API_BASE}/flashcards/decks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const { data: created } = await apiClient.post("/flashcards/decks", payload);
 
-      if (!res.ok) throw new Error("덱 저장에 실패했습니다.");
-
-      const created = await res.json();
       await fetchDecks();
       await fetchDeckDetail(created.id);
       closeCreate();
     } catch (e) {
-      setError(e.message || "알 수 없는 오류");
+      const msg = e?.response?.data?.detail || "덱 저장에 실패했습니다.";
+      setError(msg);
     } finally {
       setSaving(false);
     }
   };
-
+  
   const progressText = useMemo(() => {
     if (total === 0) return "0 / 0";
     return `${currentIndex + 1} / ${total}`;

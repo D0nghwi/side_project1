@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { chat, text } from "../../asset/style/uiClasses"
+import { chat } from "../../asset/style/uiClasses"
+import { useState } from "react"; 
 
 function ChatPanel({ noteId, noteTitle, noteContent }) {
     const [messages, setMessages] = useState([

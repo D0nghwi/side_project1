@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { layout, card, text, btn, pill, pages } from "../../asset/style/uiClasses";
+import apiClient from "../../lib/apiClient";
 
 import ChatPanel from "../../component/panel/ChatPanel";
 
@@ -19,18 +20,14 @@ function NoteDetailPage() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(`http://localhost:8000/notes/${id}`);
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error("해당 노트를 찾을 수 없습니다.");
-          }
-          throw new Error("서버 요청 실패");
-        }
-
-        const data = await response.json();
+        const { data } = await apiClient.get(`/notes/${id}`);
         setNote(data);
       } catch (err) {
-        setError(err.message || "알 수 없는 오류");
+        const msg =
+          err?.response?.status === 404
+            ? "해당 노트를 찾을 수 없습니다."
+            : err?.response?.data?.detail || "서버 요청 실패";
+        setError(msg);
       } finally {
         setLoading(false);
       }
@@ -44,17 +41,12 @@ function NoteDetailPage() {
 
     try {
       setDeleting(true);
-      const response = await fetch(`http://localhost:8000/notes/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok && response.status !== 204) {
-        throw new Error("삭제에 실패했습니다.");
-      }
-      // 삭제 후 목록으로 이동
+      await apiClient.delete(`/notes/${id}`);
       navigate("/notes");
     } catch (err) {
-      alert(err.message || "삭제 중 오류가 발생했습니다.");
+      const msg =
+        err?.response?.data?.detail || "삭제 중 오류가 발생했습니다.";
+      alert(msg);
     } finally {
       setDeleting(false);
     }

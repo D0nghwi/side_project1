@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { pages, card, text, btn, form, alertBox } from "../../asset/style/uiClasses"; 
 import TextEditor from "../../component/editor/TextEditor";
+import apiClient from "../../lib/apiClient";
 
 function NoteCreatePage() {
   const navigate = useNavigate();
@@ -40,25 +41,13 @@ function NoteCreatePage() {
         tags, // null 또는 string
       };
 
-      //디버깅용 JSON 출력 : console.log("POST /notes payload:", payload);
-      const response = await fetch("http://localhost:8000/notes/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const { data } = await apiClient.post("/notes", payload);
 
-      if (!response.ok) {
-        throw new Error("노트 생성에 실패했습니다.");
-      }
-
-      const createdNote = await response.json();
-
-      // 생성 후 해당 노트 상세 페이지로 이동
-      navigate(`/notes/${createdNote.id}`);
+      navigate(`/notes/${data.id}`);
     } catch (err) {
-      setError(err.message || "알 수 없는 오류가 발생했습니다.");
+      const msg =
+        err?.response?.data?.detail || "노트 생성에 실패했습니다.";
+      setError(msg);
     } finally {
       setLoading(false);
     }

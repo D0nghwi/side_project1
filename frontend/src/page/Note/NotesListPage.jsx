@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo} from "react";
 import { Link } from "react-router-dom";
 import { pages, btn, pill, text } from "../../asset/style/uiClasses";
+import apiClient from "../../lib/apiClient";
 
 const htmlToText = (html) => {
   if (!html) return "";
@@ -21,19 +22,14 @@ function NotesListPage() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch("http://localhost:8000/notes");
-        if (!response.ok) {
-          throw new Error("서버 요청 실패");
-        }
-
-        const data = await response.json();
-        setNotes(data);
-      } catch (err) {
-        setError(err.message || "알 수 없는 오류");
-      } finally {
-        setLoading(false);
-      }
-    };
+      const { data } = await apiClient.get("/notes");
+      setNotes(data);
+    } catch (err) {
+      setError(err?.response?.data?.detail || "서버 요청 실패");
+    } finally {
+      setLoading(false);
+    }
+  };
 
     fetchNotes();
   }, []);
