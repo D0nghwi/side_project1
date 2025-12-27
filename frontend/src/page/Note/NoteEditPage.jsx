@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { pages, card, text, btn, form, alertBox } from "../../asset/style/uiClasses";
 import TextEditor from "../../component/editor/TextEditor";
-import apiClient from "../../lib/apiClient";
+import { notesApi } from "../../api/notesApi";
 
 function NoteEditPage() {
   const { id } = useParams();
@@ -22,7 +22,8 @@ function NoteEditPage() {
         setLoading(true);
         setError(null);
 
-        const { data } = await apiClient.get(`/notes/${id}`);
+        const res = await notesApi.get(id);
+        const data = res.data;
 
         setTitle(data.title || "");
         setContent(data.content || "");
@@ -61,11 +62,13 @@ function NoteEditPage() {
               .filter(Boolean)
           : null;
       
-      const { data: updated } = await apiClient.put(`/notes/${id}`, {
+      const res = await notesApi.update(id, {
         title,
         content,
         tags,
       });
+      
+      const updated = res.data;
 
       navigate(`/notes/${updated.id}`);
     } catch (err) {
