@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { pages, card, text, btn, form, alertBox } from "../../asset/style/uiClasses";
 import TextEditor from "../../component/editor/TextEditor";
 import { notesApi } from "../../api/notesApi";
+import { useAsync } from "../../hooks/useAsync";
+import { useApiError } from "../../hooks/useApiError";
 
 function NoteEditPage() {
   const { id } = useParams();
@@ -10,83 +12,82 @@ function NoteEditPage() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [tagsInput, setTagsInput] = useState(""); // "react, fastapi"
-  const [loading, setLoading] = useState(true);   // 초기 데이터 로딩
-  const [saving, setSaving] = useState(false);    // 수정 저장 중
-  const [error, setError] = useState(null);
+  const [tagsInput, setTagsInput] = useState("");
+
+  const { getErrorMessage, isNotFound } = useApiError();
+
+  const loadReq = useAsync(); // 초기 로딩
+  const saveReq = useAsync(); // 저장
 
   // 기존 노트 데이터 불러오기
-  useEffect(() => {
-    const fetchNote = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
+ useEffect(() => {
+    loadReq.run(
+      async () => {
         const res = await notesApi.get(id);
-        const data = res.data;
-
-        setTitle(data.title || "");
-        setContent(data.content || "");
-        setTagsInput(data.tags ? data.tags.join(", ") : "");
-      } catch (err) {
-        const msg =
-          err?.response?.status === 404
-            ? "해당 노트를 찾을 수 없습니다."
-            : err?.response?.data?.detail || "노트 불러오기에 실패했습니다.";
-        setError(msg);
-      } finally {
-        setLoading(false);
+        return res.data;
+      },
+      {
+        onSuccess: (data) => {
+          setTitle(data.title || "");
+          setContent(data.content || "");
+          setTagsInput(data.tags ? data.tags.join(", ") : "");
+        },
       }
-    };
-
-    fetchNote();
+    );
   }, [id]);
-  
+
+  const loadErrorText = useMemo(() => {
+    if (!loadReq.error) return null;
+    if (isNotFound(loadReq.error)) return "해당 노트를 찾을 수 없습니다.";
+    return getErrorMessage(loadReq.error, "노트 불러오기에 실패했습니다.");
+  }, [loadReq.error, isNotFound, getErrorMessage]);
+
+  const saveErrorText = useMemo(() => {
+    if (!saveReq.error) return null;
+    return getErrorMessage(saveReq.error, "노트 수정에 실패했습니다.");
+  }, [saveReq.error, getErrorMessage]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
 
     if (!title.trim()) {
-      setError("제목은 필수입니다.");
+      saveReq.setError(new Error("제목은 필수입니다."));
       return;
     }
 
-    try {
-      setSaving(true);
+    const tags =
+      tagsInput.trim().length > 0
+        ? tagsInput
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : null;
 
-      const tags =
-        tagsInput.trim().length > 0
-          ? tagsInput
-              .split(",")
-              .map((t) => t.trim())
-              .filter(Boolean)
-          : null;
-      
-      const res = await notesApi.update(id, {
-        title,
-        content,
-        tags,
-      });
-      
-      const updated = res.data;
-
-      navigate(`/notes/${updated.id}`);
-    } catch (err) {
-      const msg = err?.response?.data?.detail || "노트 수정에 실패했습니다.";
-      setError(msg);
-    } finally {
-      setSaving(false);
-    }
+    await saveReq.run(
+      async () => {
+        const res = await notesApi.update(id, {
+          title,
+          content,
+          tags,
+        });
+        return res.data;
+      },
+      {
+        onSuccess: (updated) => {
+          navigate(`/notes/${updated.id}`);
+        },
+      }
+    );
   };
 
-  if (loading) {
+  if (loadReq.loading) {
     return <div className="p-4">노트 불러오는 중...</div>;
   }
 
-  if (error && !saving) {
+  if (loadErrorText && !saveReq.loading) {
     return (
       <div className="p-4 text-red-500">
-        에러: {error}
+        에러: {loadErrorText}
         <div className="mt-4">
           <Link to="/notes" className={btn.linkBlue}>
             ← 노트 목록으로
@@ -105,7 +106,7 @@ function NoteEditPage() {
         </Link>
       </div>
 
-      {error && <div className={alertBox.error}>{error}</div>}
+      {saveErrorText && <div className={alertBox.error}>{saveErrorText}</div>}
 
       <form
         onSubmit={handleSubmit}
@@ -139,20 +140,12 @@ function NoteEditPage() {
         </div>
 
         <div className={pages.noteForm.actions}>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className={btn.cancel}
-          >
+          <button type="button" onClick={() => navigate(-1)} className={btn.cancel}>
             취소
           </button>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className={btn.submit}
-          >
-            {saving ? "저장 중..." : "저장"}
+          <button type="submit" disabled={saveReq.loading} className={btn.submit}>
+            {saveReq.loading ? "저장 중..." : "저장"}
           </button>
         </div>
       </form>

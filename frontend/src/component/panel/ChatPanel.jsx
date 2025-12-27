@@ -1,26 +1,43 @@
 import { chat } from "../../asset/style/uiClasses"
-import { useState } from "react"; 
+import { useEffect, useMemo, useState } from "react";
 import { chatApi } from "../../api/chatApi";
+import { useAsync } from "../../hooks/useAsync";
+import { useApiError } from "../../hooks/useApiError";
 
 function ChatPanel({ noteId, noteTitle, noteContent }) {
-    const [messages, setMessages] = useState([
-    {
+    const initialAssistantMessage = useMemo(() => {
+    return {
         role: "assistant",
         content:
             `안녕하세요! 저는 StudyI입니다.\n` +
-            `지금 보고 있는 노트 ${noteId || "-"}(${ noteTitle || "제목 없음"})에 대해 궁금한 점이나,\n` +
+            `지금 보고 있는 노트 ${noteId || "-"}(${noteTitle || "제목 없음"})에 대해 궁금한 점이나,\n` +
             `React, FastAPI, 공부한 내용 등을 물어보시면 도와드릴게요.`,
-        },
-    ]);
+        };
+    }, [noteId, noteTitle]);
+
+    const [messages, setMessages] = useState([initialAssistantMessage]);
     const [input, setInput] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+
+    const sendReq = useAsync();
+    const { getErrorMessage } = useApiError();
+
+    // 초기 메시지 갱신
+    useEffect(() => {
+    setMessages((prev) => {
+        const hasUser = prev.some((m) => m.role === "user");
+            if (hasUser) return prev;
+            return [initialAssistantMessage];
+        });
+    }, [initialAssistantMessage]);
+
+    const errorText = useMemo(() => {
+        if (!sendReq.error) return null;
+        return getErrorMessage(sendReq.error, "채팅 도중 오류가 발생했습니다.");
+    }, [sendReq.error, getErrorMessage]);
 
     const handleSend = async () => {
         const trimmed = input.trim();
-        if (!trimmed || loading) return;
-
-        setError(null);
+        if (!trimmed || sendReq.loading) return;
 
         // 프론트 대화에 사용자 메시지 추가
         const newUserMessage = { role: "user", content: trimmed };
@@ -28,37 +45,30 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
         setMessages(newMessages);
         setInput("");
 
-        try {
-            setLoading(true);
-
-            // 백엔드(/chat) 호출
-            const res = await chatApi.send({
-            messages: newMessages,
-            note: {
-                id: noteId,
-                title: noteTitle,
-                content: noteContent,
+        await sendReq.run(
+            async () => {
+                const res = await chatApi.send({
+                messages: newMessages,
+                note: {
+                    id: noteId,
+                    title: noteTitle,
+                    content: noteContent,
+                },
+                });
+                return res.data;
             },
-        });
-
-        const assistantMessage = {
-            role: "assistant",
-            content: res?.data?.output ?? "응답을 받았지만 output이 비어있습니다.",
-        };
-
-        setMessages((prev) => [...prev, assistantMessage]);
-        } catch (err) {
-        console.error(err);
-
-        const serverMsg =
-            err?.response?.data?.detail ||
-            err?.response?.data?.message ||
-            err?.message;
-
-        setError(serverMsg || "채팅 도중 오류가 발생했습니다.");
-        } finally {
-            setLoading(false);
-        }
+            {
+                onSuccess: (data) => {
+                    const assistantMessage = {
+                        role: "assistant",
+                        content: data?.output ?? "응답을 받았지만 output이 비어있습니다.",
+                    };
+                    setMessages((prev) => [...prev, assistantMessage]);
+                },
+                onError: () => {
+                },
+            }
+        );
     };
 
     // Enter 로 전송, Shift+Enter 로 줄바꿈
@@ -90,25 +100,19 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
                     return (
                         <div
                             key={index}
-                            className={`${chat.rowBase} ${
-                                isUser ? "justify-end" : "justify-start"
-                            }`}
+                            className={`${chat.rowBase} ${isUser ? "justify-end" : "justify-start"}`}
                         >
-                            <div
-                                className={`${chat.bubbleBase} ${
-                                    isUser ? chat.bubbleUser : chat.bubbleAssistant
-                                }`}
-                            >
+                            <div className={`${chat.bubbleBase} ${isUser ? chat.bubbleUser : chat.bubbleAssistant}`}>
                                 {msg.content}
                             </div>
                         </div>
                     );
                 })}
 
-                {loading && <div className={chat.thinking}>StudyI가 생각 중입니다...</div>}
+                {sendReq.loading && <div className={chat.thinking}>StudyI가 생각 중입니다...</div>}
             </div>
 
-            {error && <div className={chat.errorBox}>{error}</div>}
+            {errorText && <div className={chat.errorBox}>{errorText}</div>}
 
             <div className="mt-auto">
                 <textarea
@@ -122,10 +126,10 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
                     <button
                         type="button"
                         onClick={handleSend}
-                        disabled={loading || !input.trim()}
+                        disabled={sendReq.loading|| !input.trim()}
                         className={chat.sendBtn}
                     >
-                        {loading ? "전송 중..." : "전송"}
+                        {sendReq.loading ? "전송 중..." : "전송"}
                     </button>
                 </div>
             </div>

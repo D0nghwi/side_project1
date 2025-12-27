@@ -1,4 +1,3 @@
-import React from "react";
 import NavBar from "../component/header/NavBar";
 import Sidebar from "../component/sidebar/Sidebar";
 import { layout } from "../asset/style/uiClasses";

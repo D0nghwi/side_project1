@@ -1,29 +1,6 @@
-import React, { useEffect } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { TextStyle } from "@tiptap/extension-text-style";
-import Color from "@tiptap/extension-color";
-import Highlight from "@tiptap/extension-highlight";
-import Underline from "@tiptap/extension-underline";
-import TextAlign from "@tiptap/extension-text-align";
-
+import { EditorContent } from "@tiptap/react";
 import { card, btn, form, text } from "../../asset/style/uiClasses";
-
-const FontSize = TextStyle.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      fontSize: {
-        default: null,
-        parseHTML: (el) => el.style.fontSize?.replace(/['"]+/g, "") || null,
-        renderHTML: (attrs) => {
-          if (!attrs.fontSize) return {};
-          return { style: `font-size: ${attrs.fontSize}` };
-        },
-      },
-    };
-  },
-});
+import { useTextEditor } from "../../hooks/useTextEditor";
 
 function Toolbar({ editor }) {
   if (!editor) return null;
@@ -142,37 +119,13 @@ export default function TextEditor({
   placeholder = "노트 내용을 적어주세요.",
   minHeight = 260,
 }) {
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      TextStyle,
-      FontSize,
-      Color,
-      Highlight,
-      Underline,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-    ],
-    content: value || "",
-    editorProps: {
-      attributes: {
-        class: `${form.textarea} h-auto`,
-        style: `min-height: ${minHeight}px;`,
-        "data-placeholder": placeholder,
-      },
-    },
-    onUpdate: ({ editor }) => {
-      onChange?.(editor.getHTML());
-    },
+  const { editor } = useTextEditor({
+    value,
+    onChange,
+    placeholder,
+    minHeight,
+    className: `${form.textarea} h-auto`,
   });
-
-
-  useEffect(() => {
-    if (!editor) return;
-    const current = editor.getHTML();
-    if ((value || "") !== current) {
-      editor.commands.setContent(value || "", false);
-    }
-  }, [value, editor]);
 
   return (
     <div className="space-y-2">

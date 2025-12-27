@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo} from "react";
 import { Link } from "react-router-dom";
 import { pages, btn, pill, text } from "../../asset/style/uiClasses";
 import { notesApi } from "../../api/notesApi";
+import { useAsync } from "../../hooks/useAsync";
+import { useApiError } from "../../hooks/useApiError";
 
 const htmlToText = (html) => {
   if (!html) return "";
@@ -12,42 +14,30 @@ const htmlToText = (html) => {
 
 
 function NotesListPage() {
-  const [notes, setNotes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const notesReq = useAsync([]);
+  const { getErrorMessage } = useApiError();
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
+    notesReq.run(async () => {
       const res = await notesApi.list();
-      const data = res.data;
-      setNotes(data);
-    } catch (err) {
-      setError(err?.response?.data?.detail || "서버 요청 실패");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-    fetchNotes();
+      return res.data;
+    });
   }, []);
 
   const notesWithPreview = useMemo(() => {
-    return notes.map((n) => ({
+    return (notesReq.value || []).map((n) => ({
       ...n,
       preview: htmlToText(n.content),
     }));
-  }, [notes]);
+  }, [notesReq.value]);
 
-  if (loading) {
+  if (notesReq.loading) {
     return <div className="p-4">노트 목록 불러오는 중...</div>;
   }
 
-  if (error) {
-    return <div className={text.error}>에러 발생: {error}</div>;
+  if (notesReq.error) {
+    const msg = getErrorMessage(notesReq.error, "서버 요청 실패");
+    return <div className={text.error}>에러 발생: {msg}</div>;
   }
 
   return (
