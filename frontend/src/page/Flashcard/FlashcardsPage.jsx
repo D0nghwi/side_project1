@@ -1,76 +1,100 @@
 import { useEffect, useMemo, useState } from "react";
 import { pages, card, text, pill, btn, form, alertBox } from "../../asset/style/uiClasses";
 import { flashcardsApi } from "../../api/flashcardsApi";
+import { useAsync } from "../../hooks/useAsync";
+import { useApiError } from "../../hooks/useApiError";
 
 function FlashcardsPage() {
-  const [decks, setDecks] = useState([]);
-  const [deckLoading, setDeckLoading] = useState(false);
-
+  // 학습 상태
   const [activeDeckId, setActiveDeckId] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
-  const [loadingCards, setLoadingCards] = useState(false);
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [knownCount, setKnownCount] = useState(0);
   const [unknownCount, setUnknownCount] = useState(0);
 
+  // 생성(모달/패널) 상태
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [noteIdInput, setNoteIdInput] = useState("");
   const [draftTitle, setDraftTitle] = useState("");
   const [draftCards, setDraftCards] = useState([]);
-  const [generating, setGenerating] = useState(false);
-  const [saving, setSaving] = useState(false);
 
-  const [error, setError] = useState(null);
+  // 요청 훅
+  const decksReq = useAsync([]);     // 덱 목록
+  const deckReq = useAsync();        // 덱 상세(카드)
+  const generateReq = useAsync();    // 카드 생성
+  const saveReq = useAsync();        // 덱 저장
+
+  const { getErrorMessage, isNotFound } = useApiError();
 
   const total = flashcards.length;
   const currentCard = flashcards[currentIndex];
 
-  const fetchDecks = async () => {
-    try {
-      setDeckLoading(true);
-      setError(null);
-
-      const res = await flashcardsApi.listDecks();
-      const data = res.data;
-      setDecks(data);
-    } catch (e) {
-      const msg = e?.response?.data?.detail || "덱 목록을 불러오지 못했습니다.";
-      setError(msg);
-    } finally {
-      setDeckLoading(false);
-    }
+  const resetDraft = () => {
+    setDraftTitle("");
+    setDraftCards([]);
   };
 
+  const openCreate = () => {
+    setIsCreateOpen(true);
+    resetDraft();
+    generateReq.setError(null);
+    saveReq.setError(null);
+  };
+
+  const closeCreate = () => {
+    setIsCreateOpen(false);
+    resetDraft();
+    generateReq.setError(null);
+    saveReq.setError(null);
+  };
+
+  const toggleDraftChecked = (tempId) => {
+    setDraftCards((prev) =>
+      prev.map((c) => (c.temp_id === tempId ? { ...c, checked: !c.checked } : c))
+    );
+  };
+
+  const updateDraftField = (tempId, field, value) => {
+    setDraftCards((prev) =>
+      prev.map((c) => (c.temp_id === tempId ? { ...c, [field]: value } : c))
+    );
+  };
+
+  // 덱 목록 조회
+  const fetchDecks = async () => {
+    await decksReq.run(async () => {
+      const res = await flashcardsApi.listDecks();
+      return res.data;
+    });
+  };
+
+  // 덱 상세 조회
   const fetchDeckDetail = async (deckId) => {
-    try {
-      setLoadingCards(true);
-      setError(null);
+    await deckReq.run(
+      async () => {
+        const res = await flashcardsApi.getDeck(deckId);
+        return res.data;
+      },
+      {
+        onSuccess: (data) => {
+          const cards = (data.cards || []).map((c) => ({
+            id: c.id,
+            question: c.question,
+            answer: c.answer,
+            tags: [],
+          }));
 
-      const res = await flashcardsApi.getDeck(deckId);
-      const data = res.data;
+          setActiveDeckId(deckId);
+          setFlashcards(cards);
 
-      const cards = (data.cards || []).map((c) => ({
-        id: c.id,
-        question: c.question,
-        answer: c.answer,
-        tags: [],
-      }));
-
-      setActiveDeckId(deckId);
-      setFlashcards(cards);
-
-      setCurrentIndex(0);
-      setShowAnswer(false);
-      setKnownCount(0);
-      setUnknownCount(0);
-    } catch (e) {
-      const msg = e?.response?.data?.detail || "덱 상세를 불러오지 못했습니다.";
-      setError(msg);
-    } finally {
-      setLoadingCards(false);
-    }
+          setCurrentIndex(0);
+          setShowAnswer(false);
+          setKnownCount(0);
+          setUnknownCount(0);
+        },
+      }
+    );
   };
 
   useEffect(() => {
@@ -101,11 +125,6 @@ function FlashcardsPage() {
     handleNext();
   };
 
-  const handleSelectCard = (index) => {
-    setCurrentIndex(index);
-    setShowAnswer(false);
-  };
-
   const handleShuffle = () => {
     if (flashcards.length <= 1) return;
 
@@ -120,116 +139,85 @@ function FlashcardsPage() {
     setShowAnswer(false);
   };
 
-  const resetDraft = () => {
-    setDraftTitle("");
-    setDraftCards([]);
-  };
-
-  const openCreate = () => {
-    setIsCreateOpen(true);
-    setError(null);
-    resetDraft();
-  };
-
-  const closeCreate = () => {
-    setIsCreateOpen(false);
-    setError(null);
-    resetDraft();
-  };
-
-  const toggleDraftChecked = (tempId) => {
-    setDraftCards((prev) =>
-      prev.map((c) => (c.temp_id === tempId ? { ...c, checked: !c.checked } : c))
-    );
-  };
-
-  const updateDraftField = (tempId, field, value) => {
-    setDraftCards((prev) =>
-      prev.map((c) => (c.temp_id === tempId ? { ...c, [field]: value } : c))
-    );
-  };
-
+  // 카드 생성
   const handleGenerate = async () => {
     const noteId = Number(noteIdInput);
     if (!noteId || Number.isNaN(noteId)) {
-      setError("노트 번호(숫자)를 입력해 주세요.");
+      generateReq.setError(new Error("노트 번호(숫자)를 입력해 주세요."));
       return;
     }
 
-    try {
-      setGenerating(true);
-      setError(null);
-
-      const res = await flashcardsApi.generate({
-        note_id: noteId,
-        mode: "rule",
-      });
-
-      const data = res.data;
-
-      setDraftTitle(data.suggested_title || "새 덱");
-      setDraftCards(
-        (data.cards || []).map((c, idx) => ({
-          ...c,
-          order_index: idx,
-          checked: true,
-        }))
-      );
-    } catch (e) {
-      const status = e?.response?.status;
-      if (status === 404) {
-        setError("해당 노트를 찾을 수 없습니다.");
-      } else {
-        const msg = e?.response?.data?.detail || "카드 생성에 실패했습니다.";
-        setError(msg);
+    await generateReq.run(
+      async () => {
+        const res = await flashcardsApi.generate({
+          note_id: noteId,
+          mode: "rule",
+        });
+        return res.data;
+      },
+      {
+        onSuccess: (data) => {
+          setDraftTitle(data.suggested_title || "새 덱");
+          setDraftCards(
+            (data.cards || []).map((c, idx) => ({
+              ...c,
+              order_index: idx,
+              checked: true,
+            }))
+          );
+        },
       }
-    } finally {
-      setGenerating(false);
-    }
+    );
   };
 
+  // 덱 저장
   const handleSaveDeck = async () => {
     const noteId = Number(noteIdInput);
+
     if (!draftTitle.trim()) {
-      setError("덱 제목은 비울 수 없습니다.");
+      saveReq.setError(new Error("덱 제목은 비울 수 없습니다."));
       return;
     }
 
     const selected = draftCards.filter((c) => c.checked);
     if (selected.length === 0) {
-      setError("저장할 카드를 선택해 주세요.");
+      saveReq.setError(new Error("저장할 카드를 선택해 주세요."));
       return;
     }
 
-    try {
-      setSaving(true);
-      setError(null);
+    const payload = {
+      note_id: noteId || null,
+      title: draftTitle.trim(),
+      source_type: "rule",
+      cards: selected.map((c, idx) => ({
+        order_index: idx,
+        question: c.question,
+        answer: c.answer,
+      })),
+    };
 
-      const payload = {
-        note_id: noteId || null,
-        title: draftTitle.trim(),
-        source_type: "rule",
-        cards: selected.map((c, idx) => ({
-          order_index: idx,
-          question: c.question,
-          answer: c.answer,
-        })),
-      };
-
-      const res = await flashcardsApi.createDeck(payload);
-      const created = res.data;
-
-      await fetchDecks();
-      await fetchDeckDetail(created.id);
-      closeCreate();
-    } catch (e) {
-      const msg = e?.response?.data?.detail || "덱 저장에 실패했습니다.";
-      setError(msg);
-    } finally {
-      setSaving(false);
-    }
+    await saveReq.run(
+      async () => {
+        const res = await flashcardsApi.createDeck(payload);
+        return res.data;
+      },
+      {
+        onSuccess: async (created) => {
+          await fetchDecks();
+          await fetchDeckDetail(created.id);
+          closeCreate();
+        },
+      }
+    );
   };
-  
+
+  const errorText = useMemo(() => {
+    const err = decksReq.error || deckReq.error || generateReq.error || saveReq.error;
+    if (!err) return null;
+    if (isNotFound(err)) return "해당 노트를 찾을 수 없습니다.";
+    return getErrorMessage(err, "요청 처리 중 오류가 발생했습니다.");
+  }, [decksReq.error, deckReq.error, generateReq.error, saveReq.error, isNotFound, getErrorMessage]);
+
   const progressText = useMemo(() => {
     if (total === 0) return "0 / 0";
     return `${currentIndex + 1} / ${total}`;
@@ -260,13 +248,13 @@ function FlashcardsPage() {
           </div>
         </div>
 
-        {error && <div className={alertBox.error}>{error}</div>}
+        {errorText && <div className={alertBox.error}>{errorText}</div>}
 
         <div className={pages.flash.bodyCol}>
           <div className={pages.flash.qCard}>
             <div className={`${text.descXs} font-semibold mb-2`}>질문</div>
 
-            {loadingCards ? (
+            {deckReq.loading ? (
               <div className={text.bodySm}>카드 불러오는 중...</div>
             ) : currentCard ? (
               <>
@@ -381,8 +369,13 @@ function FlashcardsPage() {
               </div>
 
               <div className={pages.flash.createActions}>
-                <button type="button" className={btn.primaryInline} onClick={handleGenerate} disabled={generating}>
-                  {generating ? "생성 중..." : "카드 생성"}
+                <button
+                  type="button"
+                  className={btn.primaryInline}
+                  onClick={handleGenerate}
+                  disabled={generateReq.loading}
+                >
+                  {generateReq.loading ? "생성 중..." : "카드 생성"}
                 </button>
 
                 <button
@@ -421,9 +414,9 @@ function FlashcardsPage() {
                 type="button"
                 className={btn.submit}
                 onClick={handleSaveDeck}
-                disabled={saving || draftCards.length === 0}
+                disabled={saveReq.loading || draftCards.length === 0}
               >
-                {saving ? "저장 중..." : "선택 저장"}
+                {saveReq.loading ? "저장 중..." : "선택 저장"}
               </button>
             </div>
 
@@ -478,15 +471,15 @@ function FlashcardsPage() {
             type="button"
             className={`${btn.outlineBase} ${btn.outlineGray} text-xs px-2 py-1`}
             onClick={fetchDecks}
-            disabled={deckLoading}
+            disabled={decksReq.loading}
           >
-            {deckLoading ? "갱신 중..." : "갱신"}
+            {decksReq.loading ? "갱신 중..." : "갱신"}
           </button>
         </div>
 
         <div className={pages.flash.asideList}>
           <ul className={pages.flash.asideUl}>
-            {decks.map((d) => (
+            {(decksReq.value || []).map((d) => (
               <li key={d.id}>
                 <button
                   type="button"
@@ -505,7 +498,7 @@ function FlashcardsPage() {
             ))}
           </ul>
 
-          {decks.length === 0 && <div className={card.dashed}>저장된 덱이 없습니다.</div>}
+          {(decksReq.value || []).length === 0 && <div className={card.dashed}>저장된 덱이 없습니다.</div>}
         </div>
       </aside>
     </div>
