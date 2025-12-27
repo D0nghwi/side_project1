@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { layout, card, text, btn, pill, pages } from "../../asset/style/uiClasses";
-import apiClient from "../../lib/apiClient";
+import apiClient from "../../api/apiClient";
 
 import ChatPanel from "../../component/panel/ChatPanel";
 

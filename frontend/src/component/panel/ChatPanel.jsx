@@ -1,5 +1,6 @@
 import { chat } from "../../asset/style/uiClasses"
 import { useState } from "react"; 
+import { chatApi } from "../../api/chatApi";
 
 function ChatPanel({ noteId, noteTitle, noteContent }) {
     const [messages, setMessages] = useState([
@@ -31,38 +32,30 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
             setLoading(true);
 
             // 백엔드(/chat) 호출
-            const response = await fetch("http://localhost:8000/chat/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    messages: newMessages,
-                    note:{
-                        id: noteId,
-                        title: noteTitle,
-                        content: noteContent,
-                    }
-                }),
-            });
+            const res = await chatApi.send({
+            messages: newMessages,
+            note: {
+                id: noteId,
+                title: noteTitle,
+                content: noteContent,
+            },
+        });
 
-            if (!response.ok) {
-                const text = await response.text();
-                console.error("Chat API error:", response.status, text);
-                throw new Error("서버 응답이 올바르지 않습니다.");
-            }
+        const assistantMessage = {
+            role: "assistant",
+            content: res?.data?.output ?? "응답을 받았지만 output이 비어있습니다.",
+        };
 
-            const data = await response.json();
-
-            const assistantMessage = {
-                role: "assistant",
-                content: data.output,
-            };
-
-            setMessages((prev) => [...prev, assistantMessage]);
+        setMessages((prev) => [...prev, assistantMessage]);
         } catch (err) {
-            console.error(err);
-            setError(err.message || "채팅 도중 오류가 발생했습니다.");
+        console.error(err);
+
+        const serverMsg =
+            err?.response?.data?.detail ||
+            err?.response?.data?.message ||
+            err?.message;
+
+        setError(serverMsg || "채팅 도중 오류가 발생했습니다.");
         } finally {
             setLoading(false);
         }

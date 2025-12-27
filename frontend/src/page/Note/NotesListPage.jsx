@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo} from "react";
 import { Link } from "react-router-dom";
 import { pages, btn, pill, text } from "../../asset/style/uiClasses";
-import apiClient from "../../lib/apiClient";
+import { notesApi } from "../../api/notesApi";
 
 const htmlToText = (html) => {
   if (!html) return "";
@@ -22,7 +22,8 @@ function NotesListPage() {
         setLoading(true);
         setError(null);
 
-      const { data } = await apiClient.get("/notes");
+      const res = await notesApi.list();
+      const data = res.data;
       setNotes(data);
     } catch (err) {
       setError(err?.response?.data?.detail || "서버 요청 실패");

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { pages, card, text, btn, form, alertBox } from "../../asset/style/uiClasses"; 
 import TextEditor from "../../component/editor/TextEditor";
-import apiClient from "../../lib/apiClient";
+import apiClient from "../../api/apiClient";
 
 function NoteCreatePage() {
   const navigate = useNavigate();

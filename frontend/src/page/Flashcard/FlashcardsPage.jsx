@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { pages, card, text, pill, btn, form, alertBox } from "../../asset/style/uiClasses";
-import apiClient from "../../lib/apiClient";
+import { flashcardsApi } from "../../api/flashcardsApi";
 
 function FlashcardsPage() {
   const [decks, setDecks] = useState([]);
@@ -32,7 +32,8 @@ function FlashcardsPage() {
       setDeckLoading(true);
       setError(null);
 
-      const { data } = await apiClient.get("/flashcards/decks");
+      const res = await flashcardsApi.listDecks();
+      const data = res.data;
       setDecks(data);
     } catch (e) {
       const msg = e?.response?.data?.detail || "덱 목록을 불러오지 못했습니다.";
@@ -47,7 +48,8 @@ function FlashcardsPage() {
       setLoadingCards(true);
       setError(null);
 
-      const { data } = await apiClient.get(`/flashcards/decks/${deckId}`);
+      const res = await flashcardsApi.getDeck(deckId);
+      const data = res.data;
 
       const cards = (data.cards || []).map((c) => ({
         id: c.id,
@@ -158,10 +160,12 @@ function FlashcardsPage() {
       setGenerating(true);
       setError(null);
 
-      const { data } = await apiClient.post("/flashcards/flashcards/generate", {
+      const res = await flashcardsApi.generate({
         note_id: noteId,
         mode: "rule",
       });
+
+      const data = res.data;
 
       setDraftTitle(data.suggested_title || "새 덱");
       setDraftCards(
@@ -212,7 +216,8 @@ function FlashcardsPage() {
         })),
       };
 
-      const { data: created } = await apiClient.post("/flashcards/decks", payload);
+      const res = await flashcardsApi.createDeck(payload);
+      const created = res.data;
 
       await fetchDecks();
       await fetchDeckDetail(created.id);
