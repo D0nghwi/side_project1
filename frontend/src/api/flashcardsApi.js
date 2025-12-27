@@ -9,4 +9,6 @@ export const flashcardsApi = {
     createDeck: (payload) => apiClient.post("/flashcards/decks", payload),
     // GET /flashcards/decks/{deck_id}
     getDeck: (deckId) => apiClient.get(`/flashcards/decks/${deckId}`),
+    // DELETE /flashcards/decks/${deckId}
+    removeDeck: (deckId) => apiClient.delete(`/flashcards/decks/${deckId}`),
 };

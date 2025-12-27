@@ -3,6 +3,8 @@ import { pages, card, text, pill, btn, form, alertBox } from "../../asset/style/
 import { flashcardsApi } from "../../api/flashcardsApi";
 import { useAsync } from "../../hooks/useAsync";
 import { useApiError } from "../../hooks/useApiError";
+import { useConfirm } from "../../hooks/useConfirm";
+import { useAlert } from "../../hooks/useAlert";
 
 function FlashcardsPage() {
   // 학습 상태
@@ -24,11 +26,22 @@ function FlashcardsPage() {
   const deckReq = useAsync();        // 덱 상세(카드)
   const generateReq = useAsync();    // 카드 생성
   const saveReq = useAsync();        // 덱 저장
+  const deleteReq = useAsync(); 
 
   const { getErrorMessage, isNotFound } = useApiError();
+  const { confirm, ConfirmRenderer } = useConfirm();
+  const { alert, AlertRenderer } = useAlert();
 
   const total = flashcards.length;
   const currentCard = flashcards[currentIndex];
+
+  const resetStudy = () => {
+    setFlashcards([]);
+    setCurrentIndex(0);
+    setShowAnswer(false);
+    setKnownCount(0);
+    setUnknownCount(0);
+  };
 
   const resetDraft = () => {
     setDraftTitle("");
@@ -211,12 +224,59 @@ function FlashcardsPage() {
     );
   };
 
+  const handleDeleteDeck = async (deckId) => {
+    if (deleteReq.loading) return;
+
+    const ok = await confirm(`덱 #${deckId}을(를) 삭제할까요?`, {
+      title: "덱 삭제",
+      confirmText: "삭제",
+      cancelText: "취소",
+      tone: "danger",
+    });
+
+    if (!ok) return;
+
+    await deleteReq.run(
+      async () => {
+        await flashcardsApi.removeDeck(deckId);
+        return true;
+      },
+      {
+        onSuccess: async () => {
+          if (activeDeckId === deckId) {
+            setActiveDeckId(null);
+            resetStudy();
+          }
+          await fetchDecks();
+        },
+        onError: async (err) => {
+          const msg = getErrorMessage(err, "덱 삭제에 실패했습니다.");
+          await alert(msg, { title: "삭제 실패", tone: "danger" });
+        },
+      }
+    );
+  };
+
   const errorText = useMemo(() => {
-    const err = decksReq.error || deckReq.error || generateReq.error || saveReq.error;
+    const err = 
+      decksReq.error ||
+      deckReq.error ||
+      generateReq.error ||
+      saveReq.error ||
+      deleteReq.error;
+
     if (!err) return null;
     if (isNotFound(err)) return "해당 노트를 찾을 수 없습니다.";
     return getErrorMessage(err, "요청 처리 중 오류가 발생했습니다.");
-  }, [decksReq.error, deckReq.error, generateReq.error, saveReq.error, isNotFound, getErrorMessage]);
+  },  [
+    decksReq.error,
+    deckReq.error,
+    generateReq.error,
+    saveReq.error,
+    deleteReq.error,
+    isNotFound,
+    getErrorMessage,
+  ]);
 
   const progressText = useMemo(() => {
     if (total === 0) return "0 / 0";
@@ -494,6 +554,16 @@ function FlashcardsPage() {
                   </div>
                   <div className={pages.flash.itemQuestion}>{d.title}</div>
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDeleteDeck(d.id)}
+                  className={`${btn.outlineBase} ${btn.outlineRed} text-xs px-2`}
+                  disabled={deleteReq.loading}
+                  aria-label={`delete deck ${d.id}`}
+                >
+                  {deleteReq.loading ? "..." : "삭제"}
+                </button>
               </li>
             ))}
           </ul>
@@ -501,6 +571,8 @@ function FlashcardsPage() {
           {(decksReq.value || []).length === 0 && <div className={card.dashed}>저장된 덱이 없습니다.</div>}
         </div>
       </aside>
+      <ConfirmRenderer />
+      <AlertRenderer />
     </div>
   );
 }
