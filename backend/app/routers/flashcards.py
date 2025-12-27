@@ -1,6 +1,6 @@
 import re
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -167,3 +167,16 @@ def get_deck(deck_id: int, db: Session = Depends(get_db)):
             for c in cards
         ],
     }
+
+@router.delete("/decks/{deck_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_deck(deck_id: int, db: Session = Depends(get_db)):
+    deck = db.query(Deck).filter(Deck.id == deck_id).first()
+    if not deck:
+        raise DeckNotFound(deck_id)
+
+    db.query(Flashcard).filter(Flashcard.deck_id == deck_id).delete(synchronize_session=False)
+
+    db.delete(deck)
+    db.commit()
+    return
+
