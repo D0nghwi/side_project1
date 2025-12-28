@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { pages, card, text, pill, btn, form, alertBox } from "../../asset/style/uiClasses";
 import { flashcardsApi } from "../../api/flashcardsApi";
-import { useAsync } from "../../hooks/useAsync";
-import { useApiError } from "../../hooks/useApiError";
-import { useConfirm } from "../../hooks/useConfirm";
-import { useAlert } from "../../hooks/useAlert";
+import { useAsync } from "../../hook/useAsync";
+import { useApiError } from "../../hook/useApiError";
+import { useConfirm } from "../../hook/useConfirm";
+import { useAlert } from "../../hook/useAlert";
 
 function FlashcardsPage() {
   // 학습 상태
@@ -162,10 +162,7 @@ function FlashcardsPage() {
 
     await generateReq.run(
       async () => {
-        const res = await flashcardsApi.generate({
-          note_id: noteId,
-          mode: "rule",
-        });
+        const res = await flashcardsApi.generate({ note_id: noteId });
         return res.data;
       },
       {

@@ -3,9 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { pages, card, text, btn, form, alertBox } from "../../asset/style/uiClasses"; 
 import TextEditor from "../../component/editor/TextEditor";
 import { notesApi } from "../../api/notesApi";
-import { useAsync } from "../../hooks/useAsync";
-import { useApiError } from "../../hooks/useApiError";
-import { useAlert } from "../../hooks/useAlert"
+import { useAsync } from "../../hook/useAsync";
+import { useApiError } from "../../hook/useApiError";
+import { useAlert } from "../../hook/useAlert"
 
 function NoteCreatePage() {
   const navigate = useNavigate();

@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field
 
 SourceType = Literal["manual", "rule", "ai"]
 
-
 class CardDraft(BaseModel):
     temp_id: str
     question: str
@@ -13,7 +12,6 @@ class CardDraft(BaseModel):
 
 class GenerateRequest(BaseModel):
     note_id: int
-    mode: SourceType = "rule"
 
 
 class GenerateResponse(BaseModel):

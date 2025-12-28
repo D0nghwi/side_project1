@@ -1,8 +1,8 @@
 import { chat } from "../../asset/style/uiClasses"
 import { useEffect, useMemo, useState } from "react";
 import { chatApi } from "../../api/chatApi";
-import { useAsync } from "../../hooks/useAsync";
-import { useApiError } from "../../hooks/useApiError";
+import { useAsync } from "../../hook/useAsync";
+import { useApiError } from "../../hook/useApiError";
 
 function ChatPanel({ noteId, noteTitle, noteContent }) {
     const initialAssistantMessage = useMemo(() => {
