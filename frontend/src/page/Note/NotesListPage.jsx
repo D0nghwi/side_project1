@@ -2,8 +2,8 @@ import { useEffect, useState, useMemo} from "react";
 import { Link } from "react-router-dom";
 import { pages, btn, pill, text } from "../../asset/style/uiClasses";
 import { notesApi } from "../../api/notesApi";
-import { useAsync } from "../../hooks/useAsync";
-import { useApiError } from "../../hooks/useApiError";
+import { useAsync } from "../../hook/useAsync";
+import { useApiError } from "../../hook/useApiError";
 
 const htmlToText = (html) => {
   if (!html) return "";

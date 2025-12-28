@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { layout, card, text, btn, pill, pages } from "../../asset/style/uiClasses";
 import { notesApi } from "../../api/notesApi";
-import { useConfirm } from "../../hooks/useConfirm";
-import { useAlert } from "../../hooks/useAlert";
-import { useAsync } from "../../hooks/useAsync";
-import { useApiError } from "../../hooks/useApiError";
+import { useConfirm } from "../../hook/useConfirm";
+import { useAlert } from "../../hook/useAlert";
+import { useAsync } from "../../hook/useAsync";
+import { useApiError } from "../../hook/useApiError";
 
 import ChatPanel from "../../component/panel/ChatPanel";
 

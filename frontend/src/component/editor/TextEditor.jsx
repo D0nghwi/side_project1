@@ -1,6 +1,6 @@
 import { EditorContent } from "@tiptap/react";
 import { card, btn, form, text } from "../../asset/style/uiClasses";
-import { useTextEditor } from "../../hooks/useTextEditor";
+import { useTextEditor } from "../../hook/useTextEditor";
 
 function Toolbar({ editor }) {
   if (!editor) return null;
