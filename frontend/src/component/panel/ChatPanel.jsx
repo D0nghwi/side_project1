@@ -1,33 +1,30 @@
 import { chat } from "../../asset/style/uiClasses"
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { chatApi } from "../../api/chatApi";
 import { useAsync } from "../../hook/useAsync";
 import { useApiError } from "../../hook/useApiError";
 
 function ChatPanel({ noteId, noteTitle, noteContent }) {
-    const initialAssistantMessage = useMemo(() => {
-    return {
+    const initialAssistantMessage = useMemo(() => ({
         role: "assistant",
         content:
             `안녕하세요! 저는 StudyI입니다.\n` +
             `지금 보고 있는 노트 ${noteId || "-"}(${noteTitle || "제목 없음"})에 대해 궁금한 점이나,\n` +
             `React, FastAPI, 공부한 내용 등을 물어보시면 도와드릴게요.`,
-        };
-    }, [noteId, noteTitle]);
+        }),
+    [noteId, noteTitle] );
 
-    const [messages, setMessages] = useState([initialAssistantMessage]);
+    const [messages, setMessages] = useState(() => [initialAssistantMessage]);
     const [input, setInput] = useState("");
 
     const sendReq = useAsync();
     const { getErrorMessage } = useApiError();
 
-    // 초기 메시지 갱신
+    // 다른 노트 -> 채팅 초기화
     useEffect(() => {
-    setMessages((prev) => {
-        const hasUser = prev.some((m) => m.role === "user");
-            if (hasUser) return prev;
-            return [initialAssistantMessage];
-        });
+        setMessages([initialAssistantMessage]);
+        setInput("");
+        sendReq.setError?.(null);
     }, [initialAssistantMessage]);
 
     const errorText = useMemo(() => {
@@ -39,22 +36,24 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
         const trimmed = input.trim();
         if (!trimmed || sendReq.loading) return;
 
-        // 프론트 대화에 사용자 메시지 추가
         const newUserMessage = { role: "user", content: trimmed };
-        const newMessages = [...messages, newUserMessage];
-        setMessages(newMessages);
-        setInput("");
 
+        const baseMessages = Array.isArray(messages) ? messages : [initialAssistantMessage];
+        const nextMessages = [...baseMessages, newUserMessage];
+
+        setMessages(nextMessages);
+        setInput("");
+        
+        const payload = {
+            note_id: noteId != null ? Number(noteId) : null,
+            messages: nextMessages.map((m) => ({
+                role: m.role,      
+                content: m.content 
+            })),
+        };
         await sendReq.run(
             async () => {
-                const res = await chatApi.send({
-                messages: newMessages,
-                note: {
-                    id: noteId,
-                    title: noteTitle,
-                    content: noteContent,
-                },
-                });
+                const res = await chatApi.send(payload);
                 return res.data;
             },
             {
@@ -63,9 +62,10 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
                         role: "assistant",
                         content: data?.output ?? "응답을 받았지만 output이 비어있습니다.",
                     };
-                    setMessages((prev) => [...prev, assistantMessage]);
-                },
-                onError: () => {
+                    setMessages((prev) => {
+                        const safePrev = Array.isArray(prev) ? prev : [];
+                        return [...safePrev, assistantMessage];
+                    });
                 },
             }
         );
@@ -79,6 +79,15 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
         }
     };
 
+    const safeMessages = Array.isArray(messages) ? messages : [];
+    const listRef = useRef(null);
+    
+    useEffect(() => {
+        const el = listRef.current;
+        if(!el) return;
+        el.scrollTop = el.scrollHeight;
+    }, [messages]);
+
     return (
         <div className={chat.container}>
             <div className={chat.headerWrap}>
@@ -87,20 +96,17 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
                     노트 내용이나 관련 개념 혹은 모르는 내용 등을 질문해 보세요.
                 </p>
             </div>
-
             <div className={chat.list}>
                 {messages.length === 0 && (
                     <p className={chat.empty}>
                         아직 메시지가 없습니다. 아래 입력창에 질문을 적어보세요.
                     </p>
                 )}
-
-                {messages.map((msg, index) => {
+                {safeMessages.map((msg, index) => {
                     const isUser = msg.role === "user";
                     return (
                         <div
-                            key={index}
-                            className={`${chat.rowBase} ${isUser ? "justify-end" : "justify-start"}`}
+                            key={index} className={`${chat.rowBase} ${isUser ? "justify-end" : "justify-start"}`}
                         >
                             <div className={`${chat.bubbleBase} ${isUser ? chat.bubbleUser : chat.bubbleAssistant}`}>
                                 {msg.content}
@@ -111,9 +117,7 @@ function ChatPanel({ noteId, noteTitle, noteContent }) {
 
                 {sendReq.loading && <div className={chat.thinking}>StudyI가 생각 중입니다...</div>}
             </div>
-
             {errorText && <div className={chat.errorBox}>{errorText}</div>}
-
             <div className="mt-auto">
                 <textarea
                     className={chat.input}

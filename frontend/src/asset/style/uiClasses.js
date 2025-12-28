@@ -96,14 +96,14 @@ export const sidebar = {
 };
 
 export const chat = {
-    container: "w-80 bg-white rounded-lg shadow p-4 flex flex-col h-full",
+    container: "w-80 bg-white rounded-lg shadow p-4 flex flex-col h-full min-h-0",
 
     headerWrap: "mb-3",
     headerTitle: "text-sm font-semibold text-gray-700",
     headerDesc: "text-xs text-gray-500 mt-1",
 
     list:
-        "flex-1 border border-gray-200 rounded-md p-2 mb-3 overflow-y-auto text-sm bg-gray-50",
+        "flex-1 min-h-0 border border-gray-200 rounded-md p-2 mb-3 overflow-y-auto text-sm bg-gray-50",
     empty: "text-xs text-gray-400",
 
     rowBase: "mb-2 flex",
