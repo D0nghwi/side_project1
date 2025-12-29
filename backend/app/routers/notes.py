@@ -1,11 +1,10 @@
 from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-
-from app.database import get_db
 from app.models.notes import Note as NoteModel
 from app.schemas.notes import NoteCreate, NoteUpdate, NoteOut
 from app.errors.domain import NoteNotFound
+from app.database import get_db
 
 router = APIRouter()
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo} from "react";
+import { useEffect, useMemo} from "react";
 import { Link } from "react-router-dom";
 import { pages, btn, pill, text } from "../../asset/style/uiClasses";
 import { notesApi } from "../../api/notesApi";

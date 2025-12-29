@@ -1,4 +1,3 @@
-
 from typing import List, Dict
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -33,6 +32,7 @@ def build_chat_messages(
 
     # user/assistant 메시지들 추가
     chat.extend(user_messages)
+
     return chat
 
 
@@ -51,9 +51,9 @@ def generate_chat_response(
 
     device = model.device
     inputs = {k: v.to(device) for k, v in inputs.items()}
-
-    input_ids = inputs["input_ids"] # (1, seq_len)
     
+    input_ids = inputs["input_ids"]
+
     # 응답 생성
     with torch.no_grad():
         output_ids = model.generate(
@@ -64,7 +64,7 @@ def generate_chat_response(
         )
 
     generated_ids = output_ids[0, input_ids.shape[1]:]  # 생성된 부분만 추출
-    
+
     # 출력 디코딩
     answer_text = tokenizer.batch_decode(
         [generated_ids],
