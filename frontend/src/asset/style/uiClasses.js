@@ -50,22 +50,18 @@ export const alertBox = {
 };
 
 export const btn = {
-    // 링크
     linkGray: "text-sm text-gray-600 hover:underline",
     linkBlue: "text-sm text-blue-600 hover:underline",
 
-    // 버튼
     outlineBase: "px-3 py-1 text-sm rounded-md border",
     outlineBlue: "border-blue-600 text-blue-600 hover:bg-blue-50",
     outlineRed: "border-red-600 text-red-600 hover:bg-red-50 disabled:opacity-60",
     outlineGray: "border text-gray-700 hover:bg-gray-50",
 
-    // Primary
     primarySm: "px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700",
     primaryInline:
         "inline-flex items-center px-3 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700",
 
-    // Form actions
     cancel:
         "px-4 py-2 text-sm border rounded-md text-gray-600 hover:bg-gray-50",
     submit:
@@ -81,6 +77,7 @@ export const nav = {
     brandWrap: "flex items-center gap-2",
     brandTitle: "font-bold text-xl text-blue-600",
     brandSub: "text-sm text-gray-500",
+    
     navWrap: "flex items-center gap-4 text-sm",
     navLink: "text-gray-700 hover:text-blue-600",
 };
@@ -89,6 +86,7 @@ export const sidebar = {
     aside: "w-56 bg-white border-r border-gray-200 p-4",
     title: "text-xs font-semibold text-gray-500 mb-2",
     nav: "flex flex-col",
+
     linkBase:
         "block px-4 py-2 rounded-md text-sm font-medium mb-1 transition-colors",
     linkActive: "bg-blue-100 text-blue-700",
@@ -127,6 +125,7 @@ export const pages = {
     notesList: {
         page: "p-4",
         header: "flex items-center justify-between mb-4",
+
         list: "space-y-3",
         itemLink: "block border rounded-lg p-3 hover:bg-gray-50 cursor-pointer",
         itemTitle: "font-semibold",
@@ -154,20 +153,25 @@ export const pages = {
 
         bottomRow: "flex items-center justify-between",
         btnGroup: "flex gap-2",
+
         aside: "w-80 flex flex-col",
         asideList: "flex-1 overflow-y-auto",
         asideUl: "space-y-2",
+
         itemBtnBase: "w-full text-left px-2 py-2 rounded-md text-xs",
         itemActive: "bg-blue-50 border border-blue-300 text-blue-800",
         itemInactive: "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100",
         itemTopRow: "flex justify-between mb-1",
         itemId: "font-semibold",
         itemQuestion: "truncate",
+
         rowBetween: "flex items-center justify-between", 
         rowBetweenMt4: "mt-4 flex items-center justify-between",
-        rowGap2: "flex items-center gap-2",                    
+        rowGap2: "flex items-center gap-2",
+
         draftCardRow: "flex items-start gap-3",                
         draftCardGrid: "flex-1 grid grid-cols-1 gap-2",
+
         createGrid: "mt-4 grid grid-cols-1 md:grid-cols-3 gap-3",
         createActions: "md:col-span-2 flex items-end gap-2",
     },

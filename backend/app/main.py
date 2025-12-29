@@ -14,9 +14,6 @@ app.add_exception_handler(AppError, app_error_handler)
 # 앱 시작 시 테이블 생성
 Base.metadata.create_all(bind=engine)
 
-# 프론트엔드 도메인
-# 실행 명령어 : uvicorn app.main:app --reload --port 8000
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list(),
